@@ -1,9 +1,28 @@
 import { renderHook, act } from '@testing-library/react-hooks';
-import { useSubscription } from '../useSubscription';
-import { createTestScenarios, createPerformanceScenarios, createDeviceSpecificScenarios } from '../../utils/subscriptionTestUtils';
+import { useSubscription, SUBSCRIPTION_PLANS } from '../useSubscription';
+import { createTestScenarios, createPerformanceScenarios, createDeviceSpecificScenarios, mockSubscriptionData } from '../../utils/subscriptionTestUtils';
 import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import NetInfo from '@react-native-community/netinfo';
+
+// Mock AsyncStorage
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  setItem: jest.fn(),
+  getItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
+}));
+
+// Mock NetInfo
+jest.mock('@react-native-community/netinfo', () => ({
+  fetch: jest.fn(),
+}));
 
 describe('useSubscription', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   // Basic scenarios
   const basicScenarios = createTestScenarios(useSubscription);
   basicScenarios.forEach(scenario => {
@@ -17,9 +36,7 @@ describe('useSubscription', () => {
       });
 
       it(scenario.description, async () => {
-        await act(async () => {
-          await scenario.test();
-        });
+        await scenario.test();
       });
     });
   });
@@ -38,9 +55,7 @@ describe('useSubscription', () => {
         });
 
         it(scenario.description, async () => {
-          await act(async () => {
-            await scenario.test();
-          });
+          await scenario.test();
         });
       });
     });
@@ -61,9 +76,7 @@ describe('useSubscription', () => {
           });
 
           it(scenario.description, async () => {
-            await act(async () => {
-              await scenario.test();
-            });
+            await scenario.test();
           });
         });
       }
@@ -76,15 +89,31 @@ describe('useSubscription', () => {
       const { result } = renderHook(() => useSubscription('test-user'));
       
       await act(async () => {
-        await result.current.startTrial('premium');
-        await result.current.upgradePlan('family');
-        await result.current.cancelSubscription();
-        await result.current.reactivateSubscription();
+        await result.current.updateSubscription({
+          currentPlan: SUBSCRIPTION_PLANS.premium,
+          status: 'active',
+          trial: true
+        });
       });
 
-      const status = result.current.getSubscriptionStatus();
-      expect(status.isActive).toBe(true);
-      expect(status.currentPlan?.id).toBe('family');
+      await act(async () => {
+        await result.current.updateSubscription({
+          currentPlan: SUBSCRIPTION_PLANS.family,
+          status: 'active',
+          trial: false
+        });
+      });
+
+      await act(async () => {
+        await result.current.cancelSubscription();
+      });
+
+      await act(async () => {
+        await result.current.renewSubscription();
+      });
+
+      expect(result.current.subscription.status).toBe('active');
+      expect(result.current.subscription.currentPlan?.id).toBe('family');
     });
 
     it('should handle multiple concurrent operations', async () => {
@@ -92,16 +121,23 @@ describe('useSubscription', () => {
       
       await act(async () => {
         const operations = [
-          result.current.startTrial('premium'),
-          result.current.upgradePlan('family'),
+          result.current.updateSubscription({
+            currentPlan: SUBSCRIPTION_PLANS.premium,
+            status: 'active',
+            trial: true
+          }),
+          result.current.updateSubscription({
+            currentPlan: SUBSCRIPTION_PLANS.family,
+            status: 'active',
+            trial: false
+          }),
           result.current.cancelSubscription(),
         ];
 
         await Promise.all(operations);
       });
 
-      const status = result.current.getSubscriptionStatus();
-      expect(status.isCancelled).toBe(true);
+      expect(result.current.subscription.status).toBe('cancelled');
     });
 
     it('should handle invalid user IDs', async () => {
@@ -109,23 +145,28 @@ describe('useSubscription', () => {
       
       await act(async () => {
         try {
-          await result.current.startTrial('premium');
+          await result.current.updateSubscription({
+            currentPlan: SUBSCRIPTION_PLANS.premium,
+            status: 'active'
+          });
           throw new Error('Should have failed with invalid user ID');
         } catch (error) {
-          expect(error.message).toBe('User ID is required');
+          expect(error.message).toBe('Invalid user ID');
         }
       });
     });
 
     it('should handle storage errors gracefully', async () => {
-      // Mock AsyncStorage to throw an error
-      jest.spyOn(AsyncStorage, 'setItem').mockRejectedValueOnce(new Error('Storage error'));
+      (AsyncStorage.setItem as jest.Mock).mockRejectedValueOnce(new Error('Storage error'));
       
       const { result } = renderHook(() => useSubscription('test-user'));
       
       await act(async () => {
         try {
-          await result.current.startTrial('premium');
+          await result.current.updateSubscription({
+            currentPlan: SUBSCRIPTION_PLANS.premium,
+            status: 'active'
+          });
           throw new Error('Should have failed with storage error');
         } catch (error) {
           expect(error.message).toBe('Storage error');
@@ -138,16 +179,19 @@ describe('useSubscription', () => {
       
       await act(async () => {
         // Start operation
-        const operation = result.current.startTrial('premium');
+        const operation = result.current.updateSubscription({
+          currentPlan: SUBSCRIPTION_PLANS.premium,
+          status: 'active'
+        });
         
         // Simulate network disconnection during operation
-        jest.spyOn(NetInfo, 'fetch').mockResolvedValueOnce({ isConnected: false } as any);
+        (NetInfo.fetch as jest.Mock).mockResolvedValueOnce({ isConnected: false });
         
         try {
           await operation;
           throw new Error('Should have failed with network error');
         } catch (error) {
-          expect(error.message).toContain('No internet connection');
+          expect(error.message).toBe('Network Error');
         }
       });
     });

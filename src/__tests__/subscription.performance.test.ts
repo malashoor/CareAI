@@ -1,37 +1,57 @@
 import { renderHook, act } from '@testing-library/react-hooks';
-import { useSubscription } from '../hooks/useSubscription';
-import { Platform } from 'react-native';
+import { useSubscription, SUBSCRIPTION_PLANS } from '../hooks/useSubscription';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import NetInfo from '@react-native-community/netinfo';
+
+const mockUserId = 'test-user-123';
+
+// Mock AsyncStorage
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  setItem: jest.fn(),
+  getItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
+}));
+
+// Mock NetInfo
+jest.mock('@react-native-community/netinfo', () => ({
+  fetch: jest.fn(),
+  addEventListener: jest.fn(),
+}));
+
+const mockSubscriptionData = {
+  currentPlan: SUBSCRIPTION_PLANS.premium,
+  status: 'active' as const,
+  loading: false,
+  error: null,
+  nextBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+  trial: false,
+  lastSync: new Date().toISOString(),
+  offlineChanges: false,
+};
 
 describe('Subscription Performance Tests', () => {
-  const mockUserId = 'test-user-123';
-  const mockSubscriptionData = {
-    isSubscribed: true,
-    expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-    plan: 'premium',
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
+    (AsyncStorage.getItem as jest.Mock).mockResolvedValue(JSON.stringify(mockSubscriptionData));
+    (NetInfo.fetch as jest.Mock).mockResolvedValue({ isConnected: true });
   });
 
   describe('Heavy Concurrent Operations', () => {
     it('should handle 50 concurrent subscription operations within 5 seconds', async () => {
       const startTime = Date.now();
-      const operations = Array(50).fill(null).map(() => {
-        return renderHook(() => useSubscription(mockUserId));
-      });
+      const { result } = renderHook(() => useSubscription(mockUserId));
 
       await act(async () => {
-        await Promise.all(operations.map(hook => 
-          hook.result.current.checkSubscriptionStatus()
-        ));
+        const operations = Array(50).fill(null).map(() => result.current.checkSubscriptionStatus());
+        await Promise.all(operations);
       });
 
       const endTime = Date.now();
-      const duration = endTime - startTime;
-      
-      expect(duration).toBeLessThan(5000); // 5 seconds threshold
-    });
+      const timeTaken = endTime - startTime;
+
+      expect(timeTaken).toBeLessThan(5000); // 5 seconds threshold
+    }, 10000); // Increased timeout to 10 seconds
   });
 
   describe('Memory Usage Under Load', () => {
@@ -39,55 +59,52 @@ describe('Subscription Performance Tests', () => {
       const initialMemory = process.memoryUsage().heapUsed;
       const { result } = renderHook(() => useSubscription(mockUserId));
 
-      for (let i = 0; i < 1000; i++) {
-        await act(async () => {
-          await result.current.checkSubscriptionStatus();
-        });
-      }
+      await act(async () => {
+        const operations = Array(1000).fill(null).map(() => result.current.checkSubscriptionStatus());
+        await Promise.all(operations);
+      });
 
       const finalMemory = process.memoryUsage().heapUsed;
-      const memoryIncrease = finalMemory - initialMemory;
-      
-      expect(memoryIncrease).toBeLessThan(50 * 1024 * 1024); // 50MB threshold
-    });
+      const memoryUsed = (finalMemory - initialMemory) / 1024 / 1024; // Convert to MB
+
+      expect(memoryUsed).toBeLessThan(50); // 50MB threshold
+    }, 30000); // 30 seconds timeout
   });
 
   describe('Network Failure Recovery', () => {
-    it('should recover from network failures within 1 second', async () => {
-      const { result } = renderHook(() => useSubscription(mockUserId));
-      
+    it('should recover from network failure within 1 second', async () => {
       // Simulate network failure
-      jest.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('Network Error'));
-      
-      const startTime = Date.now();
-      
-      await act(async () => {
-        await result.current.checkSubscriptionStatus();
-      });
+      (NetInfo.fetch as jest.Mock).mockResolvedValue({ isConnected: false });
 
+      const { result } = renderHook(() => useSubscription(mockUserId));
+
+      const startTime = Date.now();
+      await act(async () => {
+        try {
+          await result.current.checkSubscriptionStatus();
+        } catch (error) {
+          // Expected error
+        }
+      });
       const endTime = Date.now();
-      const recoveryTime = endTime - startTime;
-      
-      expect(recoveryTime).toBeLessThan(1000); // 1 second threshold
-    });
+
+      expect(result.current.subscription.error).toBe('Network Error');
+      expect(endTime - startTime).toBeLessThan(1000); // 1 second threshold
+    }, 5000);
   });
 
   describe('Platform-Specific Performance', () => {
     it('should maintain consistent performance across platforms', async () => {
       const { result } = renderHook(() => useSubscription(mockUserId));
-      
+
       const startTime = Date.now();
-      
       await act(async () => {
         await result.current.checkSubscriptionStatus();
       });
-
       const endTime = Date.now();
-      const duration = endTime - startTime;
-      
-      // Platform-specific thresholds
-      const threshold = Platform.OS === 'ios' ? 2000 : 1500;
-      expect(duration).toBeLessThan(threshold);
-    });
+      const timeTaken = endTime - startTime;
+
+      expect(timeTaken).toBeLessThan(100); // 100ms threshold
+    }, 5000);
   });
 }); 

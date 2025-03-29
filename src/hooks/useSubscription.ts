@@ -12,7 +12,7 @@ interface SubscriptionPlan {
 
 interface SubscriptionState {
   currentPlan: SubscriptionPlan | null;
-  status: 'active' | 'inactive' | 'cancelled' | 'expired';
+  status: 'active' | 'inactive' | 'cancelled' | 'expired' | 'error';
   loading: boolean;
   error: string | null;
   nextBillingDate: string | null;
@@ -28,6 +28,7 @@ interface SubscriptionError extends Error {
 }
 
 export const SUBSCRIPTION_PLANS = {
+  none: null,
   premium: {
     id: 'premium',
     name: 'Premium',
@@ -104,17 +105,58 @@ export const useSubscription = (userId: string) => {
     offlineChanges: false,
   });
 
+  const loadStoredState = useCallback(async () => {
+    try {
+      const storedState = await AsyncStorage.getItem(`${STORAGE_KEY}_${userId}`);
+      if (storedState) {
+        const parsedState = JSON.parse(storedState);
+        setState(parsedState);
+      }
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        error: 'Storage error',
+        status: 'error'
+      }));
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    loadStoredState();
+  }, [loadStoredState]);
+
   const checkSubscriptionStatus = useCallback(async () => {
     try {
       validateUserId(userId);
+      setState(prev => ({ ...prev, loading: true, error: null }));
+
       const isConnected = await checkConnectivity();
-      
       if (!isConnected) {
+        setState(prev => ({
+          ...prev,
+          loading: false,
+          error: 'Network Error',
+          offlineChanges: true,
+          status: 'error'
+        }));
         throw new Error('Network Error');
       }
 
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Check if subscription is expired
+      const now = new Date();
+      const nextBillingDate = new Date(state.nextBillingDate || '');
+      const isExpired = nextBillingDate < now;
+
+      setState(prev => ({
+        ...prev,
+        loading: false,
+        error: null,
+        status: isExpired ? 'expired' : prev.status,
+        offlineChanges: false
+      }));
 
       return {
         isActive: state.status === 'active',
@@ -122,17 +164,21 @@ export const useSubscription = (userId: string) => {
         error: null
       };
     } catch (error) {
+      const subscriptionError = handleSubscriptionError(error);
       setState(prev => ({
         ...prev,
-        error: error instanceof Error ? error.message : 'An unexpected error occurred'
+        loading: false,
+        error: subscriptionError.message,
+        status: 'error'
       }));
-      throw error;
+      throw subscriptionError;
     }
-  }, [userId, state.status, state.currentPlan]);
+  }, [userId, state.status, state.currentPlan, state.nextBillingDate]);
 
   const updateSubscription = useCallback(async (subscriptionData: Partial<SubscriptionState>) => {
     try {
       validateUserId(userId);
+      setState(prev => ({ ...prev, loading: true, error: null }));
       
       if (!subscriptionData) {
         throw new Error('Invalid subscription data');
@@ -140,75 +186,122 @@ export const useSubscription = (userId: string) => {
 
       const isConnected = await checkConnectivity();
       if (!isConnected) {
+        setState(prev => ({
+          ...prev,
+          loading: false,
+          error: 'Network Error',
+          offlineChanges: true,
+          status: 'error'
+        }));
         throw new Error('Network Error');
       }
 
-      setState(prev => ({
-        ...prev,
+      const newState = {
+        ...state,
         ...subscriptionData,
-        error: null
-      }));
+        loading: false,
+        error: null,
+        lastSync: new Date().toISOString()
+      };
 
-      return state;
+      await AsyncStorage.setItem(`${STORAGE_KEY}_${userId}`, JSON.stringify(newState));
+      setState(newState);
+
+      return newState;
     } catch (error) {
+      const subscriptionError = handleSubscriptionError(error);
       setState(prev => ({
         ...prev,
-        error: error instanceof Error ? error.message : 'Invalid subscription data'
+        loading: false,
+        error: subscriptionError.message,
+        status: 'error'
       }));
-      throw error;
+      throw subscriptionError;
     }
-  }, [userId]);
+  }, [userId, state]);
 
   const cancelSubscription = useCallback(async () => {
     try {
       validateUserId(userId);
+      setState(prev => ({ ...prev, loading: true, error: null }));
       
       const isConnected = await checkConnectivity();
       if (!isConnected) {
+        setState(prev => ({
+          ...prev,
+          loading: false,
+          error: 'Network Error',
+          offlineChanges: true,
+          status: 'error'
+        }));
         throw new Error('Network Error');
       }
 
-      setState(prev => ({
-        ...prev,
+      const newState = {
+        ...state,
         status: 'cancelled',
-        error: null
-      }));
+        loading: false,
+        error: null,
+        lastSync: new Date().toISOString()
+      };
 
-      return state;
+      await AsyncStorage.setItem(`${STORAGE_KEY}_${userId}`, JSON.stringify(newState));
+      setState(newState);
+
+      return newState;
     } catch (error) {
+      const subscriptionError = handleSubscriptionError(error);
       setState(prev => ({
         ...prev,
-        error: error instanceof Error ? error.message : 'An unexpected error occurred'
+        loading: false,
+        error: subscriptionError.message,
+        status: 'error'
       }));
-      throw error;
+      throw subscriptionError;
     }
-  }, [userId]);
+  }, [userId, state]);
 
   const renewSubscription = useCallback(async () => {
     try {
       validateUserId(userId);
+      setState(prev => ({ ...prev, loading: true, error: null }));
       
       const isConnected = await checkConnectivity();
       if (!isConnected) {
+        setState(prev => ({
+          ...prev,
+          loading: false,
+          error: 'Network Error',
+          offlineChanges: true,
+          status: 'error'
+        }));
         throw new Error('Network Error');
       }
 
-      setState(prev => ({
-        ...prev,
+      const newState = {
+        ...state,
         status: 'active',
+        loading: false,
         error: null,
-        gracePeriodEnd: undefined
-      }));
+        lastSync: new Date().toISOString(),
+        nextBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+      };
 
-      return state;
+      await AsyncStorage.setItem(`${STORAGE_KEY}_${userId}`, JSON.stringify(newState));
+      setState(newState);
+
+      return newState;
     } catch (error) {
+      const subscriptionError = handleSubscriptionError(error);
       setState(prev => ({
         ...prev,
-        error: error instanceof Error ? error.message : 'An unexpected error occurred'
+        loading: false,
+        error: subscriptionError.message,
+        status: 'error'
       }));
-      throw error;
+      throw subscriptionError;
     }
-  }, [userId]);
+  }, [userId, state]);
 
   return {
     subscription: state,
