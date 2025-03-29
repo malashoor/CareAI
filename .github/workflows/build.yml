@@ -1,0 +1,35 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      # Set environment variable for Play Store credentials file path
+      - name: Set environment variable for Google Play credentials
+        run: echo "GOOGLE_PLAY_CREDENTIALS=${{ secrets.GOOGLE_PLAY_CREDENTIALS }}" >> $GITHUB_ENV
+
+      # Build the project (example for React Native)
+      - name: Build project
+        run: npm install && npm run build
+
+      # Run tests (optional)
+      - name: Run tests
+        run: npm test
+
+      # Further deployment steps or Play Store submission steps can be added here
