@@ -1,0 +1,19 @@
+{
+  "extends": "../project/tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react",
+    "types": ["node", "jest", "@testing-library/react-native"],
+    "typeRoots": [
+      "../project/src/types",
+      "../project/node_modules/@types",
+      "."
+    ]
+  },
+  "include": [
+    "**/*",
+    "types.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+} 
