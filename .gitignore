@@ -1,2 +1,14 @@
 node_modules
 node_modules
+ios/build/
+ios/Pods/
+*.xcworkspace
+*.xcuserdata
+DerivedData/
+*.xcuserstate
+.DS_Store
+node_modules/
+.expo/
+dist/
+*.log
+.easl/
