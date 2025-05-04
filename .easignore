@@ -6,3 +6,5 @@ ios/Pods
 dist
 *.log
 android/app/.cxx/
+android/app/.cxx
+android/app/.cxx/**
