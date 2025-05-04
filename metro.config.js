@@ -14,6 +14,12 @@ defaultConfig.transformer = {
       keep_fnames: true,
     },
   },
+  getTransformOptions: async () => ({
+    transform: {
+      experimentalImportSupport: false,
+      inlineRequires: true,
+    },
+  }),
 };
 
 defaultConfig.resolver.assetExts = defaultConfig.resolver.assetExts.filter(ext => ext !== 'svg');
@@ -24,5 +30,9 @@ defaultConfig.resolver.unstable_enablePackageExports = true;
 defaultConfig.resolver.extraNodeModules = {
   'react-native': require.resolve('react-native'),
 };
+
+// Add additional configuration for better compatibility
+defaultConfig.watchFolders = [__dirname];
+defaultConfig.resolver.nodeModulesPaths = [__dirname];
 
 module.exports = defaultConfig; 

@@ -35,7 +35,6 @@
     "jest-expo": "^53.0.4",
     "jest-react-native": "^18.0.0",
     "metro-react-native-babel-preset": "^0.77.0",
-    "metro-react-native-babel-transformer": "^0.77.0",
     "npm-force-resolutions": "^0.0.10",
     "react-native-flipper": "^0.273.0",
     "react-native-svg-transformer": "^1.5.0",
@@ -105,7 +104,6 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "preinstall": "npx npm-force-resolutions",
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
