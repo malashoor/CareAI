@@ -97,6 +97,7 @@
     "react-native-toast-message": "^2.3.0",
     "react-native-url-polyfill": "^2.0.0",
     "react-native-vector-icons": "^10.2.0",
+    "react-native-keyboard-aware-scroll-view": "0.9.5",
     "typescript": "~5.8.3",
     "zustand": "^5.0.3"
   },
@@ -123,9 +124,9 @@
     "pre-release-check": "npm run lint && npm run type-check && npm run test:all"
   },
   "resolutions": {
-    "metro": "^0.82.0",
-    "metro-config": "^0.82.0",
-    "metro-resolver": "^0.82.0"
+    "metro": "0.82.0",
+    "metro-config": "0.82.0",
+    "metro-resolver": "0.82.0"
   },
   "private": true
 }
