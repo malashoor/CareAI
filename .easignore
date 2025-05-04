@@ -5,3 +5,4 @@ ios/Pods
 .expo
 dist
 *.log
+android/app/.cxx/
