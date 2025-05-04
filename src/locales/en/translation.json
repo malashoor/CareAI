@@ -1,0 +1,68 @@
+{
+  "admin": {
+    "promotions": {
+      "title": "Promotions Management",
+      "create": "Create Promotion",
+      "edit": "Edit Promotion",
+      "active": "Active",
+      "inactive": "Inactive",
+      "discount": "Discount",
+      "uses": "Uses",
+      "validUntil": "Valid Until",
+      "empty": "No promotions found",
+      "createSuccess": "Promotion created successfully",
+      "editSuccess": "Promotion updated successfully",
+      "deleteSuccess": "Promotion deleted successfully",
+      "deleteConfirm": "Are you sure you want to delete this promotion?",
+      "form": {
+        "title": "Title",
+        "description": "Description",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "discountType": "Discount Type",
+        "discountValue": "Discount Value",
+        "maxUses": "Maximum Uses",
+        "isActive": "Active",
+        "submit": "Create Promotion",
+        "update": "Update Promotion",
+        "cancel": "Cancel"
+      }
+    },
+    "discounts": {
+      "title": "Discount Management",
+      "create": "Create Discount",
+      "edit": "Edit Discount",
+      "active": "Active",
+      "inactive": "Inactive",
+      "discount": "Discount",
+      "uses": "Uses",
+      "validUntil": "Valid Until",
+      "empty": "No discounts found",
+      "createSuccess": "Discount created successfully",
+      "editSuccess": "Discount updated successfully",
+      "deleteSuccess": "Discount deleted successfully",
+      "deleteConfirm": "Are you sure you want to delete this discount?",
+      "form": {
+        "code": "Discount Code",
+        "description": "Description",
+        "discountType": "Discount Type",
+        "value": "Value",
+        "expiresAt": "Expires At",
+        "maxUses": "Maximum Uses",
+        "appliesTo": "Applies To",
+        "minPurchaseAmount": "Minimum Purchase Amount",
+        "maxDiscountAmount": "Maximum Discount Amount",
+        "submit": "Create Discount",
+        "update": "Update Discount",
+        "cancel": "Cancel"
+      },
+      "analytics": {
+        "totalUses": "Total Uses",
+        "uniqueUsers": "Unique Users",
+        "averageDiscount": "Average Discount",
+        "revenue": "Revenue Impact",
+        "conversionRate": "Conversion Rate"
+      }
+    }
+  }
+} 

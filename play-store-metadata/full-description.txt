@@ -1,0 +1,15 @@
+CareAI is your intelligent health companion that provides personalized care and medical guidance right at your fingertips. Powered by advanced artificial intelligence, CareAI helps you track your health, understand symptoms, and make informed decisions about your wellbeing.
+
+Key Features:
+• AI-Powered Health Assistant: Get instant answers to your health questions
+• Symptom Tracking: Log and monitor your symptoms over time
+• Personalized Care Plans: Receive customized health recommendations
+• Medication Reminders: Never miss a dose with smart notifications
+• Health Insights: Understand your health patterns with detailed analytics
+• Secure & Private: Your health data is encrypted and protected
+• Voice Interaction: Natural conversations with your health assistant
+• Accessibility Features: Designed for everyone, including those with disabilities
+
+Whether you're managing a chronic condition, tracking your wellness journey, or seeking reliable health information, CareAI is here to support you every step of the way.
+
+Download CareAI today and take control of your health journey with confidence and ease. 

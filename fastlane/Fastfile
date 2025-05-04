@@ -1,0 +1,29 @@
+default_platform(:ios)
+
+platform :ios do
+  desc "Generate screenshots for iOS"
+  lane :screenshots do
+    snapshot(
+      workspace: "ios/CareAI.xcworkspace",
+      scheme: "CareAI",
+      test_target_name: "CareAIUITests",
+      devices: [
+        "iPhone 15 Pro",
+        "iPhone 15 Pro Max",
+        "iPhone 15",
+        "iPhone SE (3rd generation)"
+      ],
+      languages: ["en-US", "ar"],
+      output_directory: "fastlane/metadata/screenshots",
+      clear_previous_screenshots: true,
+      reinstall_app: true,
+      erase_simulator: true,
+      localize_simulator: true,
+      concurrent_simulators: false,
+      stop_after_first_error: true,
+      number_of_retries: 3,
+      build_for_testing: true,
+      test_without_building: false
+    )
+  end
+end 

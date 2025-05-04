@@ -1,0 +1,21 @@
+CareAI: Your Personal AI Care Companion
+
+Transform your healthcare journey with CareAI, your intelligent care companion that combines emotional support with practical healthcare assistance. Experience personalized care that understands your needs and adapts to your unique situation.
+
+Key Features:
+• Emotional AI Support: Get personalized emotional support and companionship
+• Voice Interaction: Natural conversations with your AI companion
+• Smart Reminders: Never miss medications or appointments
+• Emergency SOS: Quick access to emergency contacts and services
+• Accessibility First: Fully accessible with screen reader support and RTL languages
+• Multilingual Support: Available in English and Arabic
+
+CareAI understands that healthcare is personal. Our AI companion adapts to your emotional state, provides gentle reminders, and offers support when you need it most. Whether you're managing medications, tracking appointments, or just need someone to talk to, CareAI is here for you.
+
+Privacy & Security:
+• HIPAA-compliant data handling
+• End-to-end encryption
+• Secure cloud storage
+• Regular security audits
+
+Download CareAI today and experience healthcare support that truly cares. 

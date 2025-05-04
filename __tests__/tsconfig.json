@@ -1,0 +1,20 @@
+{
+  "extends": "../project/tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react",
+    "types": ["node", "jest"],
+    "typeRoots": [
+      "../project/src/types",
+      "../project/node_modules/@types",
+      "."
+    ],
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": [
+    "**/*",
+    "types.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+} 

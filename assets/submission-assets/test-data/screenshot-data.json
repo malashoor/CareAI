@@ -1,0 +1,88 @@
+{
+  "user": {
+    "name": "Sarah Johnson",
+    "avatar": "https://careai.app/avatars/sarah.jpg",
+    "email": "sarah.j@example.com",
+    "preferences": {
+      "theme": "system",
+      "language": "en",
+      "notifications": true,
+      "accessibility": {
+        "highContrast": true,
+        "largeText": false,
+        "screenReader": true
+      }
+    }
+  },
+  "chat": {
+    "messages": [
+      {
+        "id": 1,
+        "type": "ai",
+        "content": "I notice you seem a bit anxious today. Would you like to talk about what's on your mind?",
+        "timestamp": "2024-04-02T10:30:00Z",
+        "emotion": "empathetic"
+      },
+      {
+        "id": 2,
+        "type": "user",
+        "content": "I'm worried about my upcoming doctor's appointment.",
+        "timestamp": "2024-04-02T10:31:00Z"
+      },
+      {
+        "id": 3,
+        "type": "ai",
+        "content": "That's completely understandable. Medical appointments can be stressful. Would you like me to help you prepare for it?",
+        "timestamp": "2024-04-02T10:32:00Z",
+        "emotion": "supportive"
+      }
+    ]
+  },
+  "reminders": [
+    {
+      "id": 1,
+      "title": "Doctor's Appointment",
+      "description": "Annual checkup with Dr. Smith",
+      "date": "2024-04-15T14:00:00Z",
+      "priority": "high",
+      "completed": false
+    },
+    {
+      "id": 2,
+      "title": "Take Medication",
+      "description": "Morning vitamins and blood pressure medication",
+      "date": "2024-04-02T08:00:00Z",
+      "priority": "medium",
+      "completed": true
+    },
+    {
+      "id": 3,
+      "title": "Exercise",
+      "description": "30-minute walk in the park",
+      "date": "2024-04-02T17:00:00Z",
+      "priority": "medium",
+      "completed": false
+    }
+  ],
+  "sos": {
+    "emergencyContacts": [
+      {
+        "name": "John Johnson",
+        "relationship": "Spouse",
+        "phone": "+1 (555) 123-4567",
+        "priority": 1
+      },
+      {
+        "name": "Dr. Sarah Smith",
+        "relationship": "Primary Care",
+        "phone": "+1 (555) 987-6543",
+        "priority": 2
+      }
+    ],
+    "lastLocation": {
+      "latitude": 37.7749,
+      "longitude": -122.4194,
+      "timestamp": "2024-04-02T10:00:00Z"
+    }
+  }
+}

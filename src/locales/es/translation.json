@@ -1,0 +1,32 @@
+{
+  "admin": {
+    "promotions": {
+      "title": "",
+      "create": "",
+      "edit": "",
+      "active": "",
+      "inactive": "",
+      "discount": "",
+      "uses": "",
+      "validUntil": "",
+      "empty": "",
+      "createSuccess": "",
+      "editSuccess": "",
+      "deleteSuccess": "",
+      "deleteConfirm": "",
+      "form": {
+        "title": "",
+        "description": "",
+        "startDate": "",
+        "endDate": "",
+        "discountType": "",
+        "discountValue": "",
+        "maxUses": "",
+        "isActive": "",
+        "submit": "",
+        "update": "",
+        "cancel": ""
+      }
+    }
+  }
+} 

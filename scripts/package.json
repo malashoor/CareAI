@@ -1,0 +1,9 @@
+{
+  "name": "careai-scripts",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "generate-screenshots": "node generate-screenshots.js",
+    "build-release": "node build-release.js"
+  }
+} 

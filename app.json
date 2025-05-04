@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "CareAI",
+    "slug": "CareAI",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.moayed.CareAI"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.moayed.CareAI"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "928d6784-3b20-4600-8e70-02c4ab3516e6"
+      }
+    },
+    "owner": "m_ashoor",
+    "plugins": [
+      "expo-build-properties",
+      "expo-font",
+      "expo-router"
+    ]
+  }
+}

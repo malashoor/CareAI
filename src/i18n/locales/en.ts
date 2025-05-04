@@ -1,0 +1,30 @@
+export const en = {
+  admin: {
+    giftedUsers: {
+      title: 'Gifted Access',
+      add: 'Add Gifted User',
+      edit: 'Edit Gifted User',
+      search: 'Search users...',
+      filters: 'Filter users',
+      sendInvite: 'Send Invite',
+      fullName: 'Full Name',
+      email: 'Email',
+      phone: 'Phone',
+      region: 'Region',
+      charity: 'Charity',
+      note: 'Note',
+      status: 'Status',
+      statuses: {
+        pending: 'Pending',
+        invited: 'Invited',
+        accepted: 'Accepted',
+        expired: 'Expired',
+      },
+      loaded: 'Gifted users loaded',
+      added: 'Gifted user added successfully',
+      updated: 'Gifted user updated successfully',
+      inviteSent: 'Invite sent successfully',
+      error: 'An error occurred',
+    },
+  },
+}; 
