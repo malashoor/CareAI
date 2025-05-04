@@ -1,10 +1,66 @@
+# macOS system files
 .DS_Store
-node_modules
-ios/build
-ios/Pods
-.expo
-dist
-*.log
-android/app/.cxx/
-android/app/.cxx
-android/app/.cxx/**
+
+# node
+node_modules/
+npm-debug.log
+yarn-error.log
+pnpm-lock.yaml
+
+# version control
+.git
+.gitignore
+
+# build artifacts
+*.tar.gz
+*.tgz
+dist/
+build/
+web-build/
+coverage/
+
+# Android
+android/.gradle/
+android/.idea/
+android/.cxx/
+android/app/build/
+android/build/
+android/local.properties
+android/**/*.iml
+android/**/captures/
+android/**/outputs/
+android/**/intermediates/
+android/**/release/
+android/**/.cxx/
+
+# iOS
+ios/Pods/
+ios/DerivedData/
+ios/build/
+ios/*.xcodeproj/project.xcworkspace/
+ios/*.xcworkspace/
+ios/*.xcodeproj/xcuserdata/
+ios/*.xcodeproj/project.xcworkspace/
+ios/*.pbxuser
+ios/**/*.mode1v3
+ios/**/*.mode2v3
+ios/**/*.perspectivev3
+ios/**/*.xcuserstate
+
+# Expo & EAS
+.expo/
+.expo-shared/
+.easlifecycle/
+.eas/
+*.easignore
+*.expo-settings.json
+*.expo-packager.json
+
+# Cache
+*.tmp
+*.swp
+*.lock
+tmp/
+temp/
+.cache/
+.babel.cache/
