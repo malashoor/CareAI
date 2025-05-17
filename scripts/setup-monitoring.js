@@ -130,7 +130,7 @@ async function setupDatadogMonitors() {
       type: 'query alert',
       query: 'sum:notification_failed{event_type:sos_triggered}.as_count() > 0',
       message: '@slack-careai-alerts URGENT: Critical SOS notification failures detected',
-      tags: ['service:notifications', 'env:production', 'team:mobile', 'priority:p1'],
+      tags: ['service:notifications', 'env:production', 'team:mobile', 'priority:p1', 'severity:critical'],
       options: {
         thresholds: {
           critical: 0
@@ -202,7 +202,7 @@ async function setupSentryAlerts() {
       --name "SOS Alert Failures" \
       --environment production \
       --action-match any \
-      --conditions type:error tags[event_type]:sos_triggered \
+      --conditions type:error tags[event_type]:sos_triggered tags[severity]:critical \
       --triggers 1 \
       --triggers-window 5m \
       --actions slack:careai-alerts email:oncall@careai.app
@@ -332,11 +332,57 @@ async function createDatadogDashboard() {
       }
     };
     
-    const result = await makeRequest(options, dashboard);
-    console.log(`${colors.green}✓ Created Datadog dashboard: ${dashboard.title} (ID: ${result.id})${colors.reset}`);
-    console.log(`Dashboard URL: https://app.datadoghq.com/dashboard/${result.id}`);
+    try {
+      const result = await makeRequest(options, dashboard);
+      console.log(`${colors.green}✓ Created Datadog dashboard: ${dashboard.title} (ID: ${result.id})${colors.reset}`);
+      console.log(`Dashboard URL: https://app.datadoghq.com/dashboard/${result.id}`);
+    } catch (error) {
+      // Check if error is a 409 (dashboard already exists)
+      if (error.statusCode === 409) {
+        console.log(`${colors.yellow}⚠️ Dashboard "${dashboard.title}" already exists. Attempting to update...${colors.reset}`);
+        
+        // List dashboards to find the existing one
+        const listOptions = {
+          hostname: DATADOG_API_ENDPOINT,
+          port: 443,
+          path: '/api/v1/dashboard',
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'DD-API-KEY': process.env.DATADOG_API_KEY,
+            'DD-APPLICATION-KEY': process.env.DATADOG_APP_KEY
+          }
+        };
+        
+        const dashboards = await makeRequest(listOptions);
+        const existingDashboard = dashboards.dashboards.find(d => d.title === dashboard.title);
+        
+        if (existingDashboard) {
+          // Update the existing dashboard
+          const updateOptions = {
+            hostname: DATADOG_API_ENDPOINT,
+            port: 443,
+            path: `/api/v1/dashboard/${existingDashboard.id}`,
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'DD-API-KEY': process.env.DATADOG_API_KEY,
+              'DD-APPLICATION-KEY': process.env.DATADOG_APP_KEY
+            }
+          };
+          
+          const updateResult = await makeRequest(updateOptions, dashboard);
+          console.log(`${colors.green}✓ Updated existing Datadog dashboard: ${dashboard.title} (ID: ${updateResult.id})${colors.reset}`);
+          console.log(`Dashboard URL: https://app.datadoghq.com/dashboard/${updateResult.id}`);
+        } else {
+          console.error(`${colors.red}✗ Could not find the existing dashboard to update${colors.reset}`);
+        }
+      } else {
+        console.error(`${colors.red}✗ Failed to create Datadog dashboard: ${JSON.stringify(error)}${colors.reset}`);
+      }
+    }
   } catch (error) {
-    console.error(`${colors.red}✗ Failed to create Datadog dashboard: ${JSON.stringify(error)}${colors.reset}`);
+    console.error(`${colors.red}✗ Failed during dashboard operation: ${JSON.stringify(error)}${colors.reset}`);
   }
 }
 
@@ -361,7 +407,7 @@ async function main() {
   console.log(`2. Ensure proper Sentry capture for notification failures:`);
   console.log(`   Sentry.captureMessage('NotificationDeliveryFailed', {`);
   console.log(`     level: 'warning',`);
-  console.log(`     tags: { event_type, platform },`);
+  console.log(`     tags: { event_type, platform, severity: event_type === 'sos_triggered' ? 'critical' : 'warning' },`);
   console.log(`     extra: { error, payload }`);
   console.log(`   });`);
 }
