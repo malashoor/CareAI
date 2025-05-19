@@ -1,7 +1,7 @@
 {
   "name": "care-ai",
   "main": "expo-router/entry",
-  "version": "1.0.0-rc1",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "NODE_OPTIONS=--max_old_space_size=4096 EXPO_NO_TELEMETRY=1 npx expo start --clear",

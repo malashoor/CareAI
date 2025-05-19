@@ -1,0 +1,147 @@
+name: CareAI CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # Run tests
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint code
+        run: npm run lint
+
+      - name: Run unit tests
+        run: npm test
+
+      - name: Upload test coverage
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage/coverage-final.json
+          fail_ci_if_error: false
+
+  # Build preview app for internal testing
+  eas-build-preview:
+    name: EAS Build Preview
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Build app (Preview)
+        run: eas build --platform all --profile preview --non-interactive
+
+      - name: Submit app to TestFlight and Google Internal Track
+        run: eas submit --platform all --profile preview --non-interactive
+        env:
+          EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }}
+
+  # Build production app for release
+  eas-build-production:
+    name: EAS Build Production
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Build app (Production)
+        run: eas build --platform all --profile production --non-interactive
+
+  # Submit to app stores for beta testing
+  eas-submit-beta:
+    name: EAS Submit Beta
+    needs: eas-build-production
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Submit to app stores (Beta)
+        run: eas submit --platform all --profile production --non-interactive
+        env:
+          EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }}
+
+      - name: Generate Release Notes
+        run: |
+          echo "# CareAI Beta Release Notes" > RELEASE_NOTES.md
+          echo "## Version $(node -p "require('./app.json').expo.version")" >> RELEASE_NOTES.md
+          echo "### Build $(node -p "require('./app.json').expo.ios.buildNumber")" >> RELEASE_NOTES.md
+          echo "#### What's New" >> RELEASE_NOTES.md
+          echo "- Real-time vitals monitoring dashboard" >> RELEASE_NOTES.md
+          echo "- Critical alerts escalation queue" >> RELEASE_NOTES.md
+          echo "- Push notification infrastructure for care coordination" >> RELEASE_NOTES.md
+          echo "#### Known Issues" >> RELEASE_NOTES.md
+          echo "- Please report any bugs to support@careai.app" >> RELEASE_NOTES.md
+
+      - name: Upload Release Notes
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-notes
+          path: RELEASE_NOTES.md 
