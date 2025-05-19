@@ -178,3 +178,48 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Support
 
 For support, email support@careai.com or join our Slack channel.
+
+## Quick-start for new devs
+
+This guide will help you get the CareAI application up and running quickly:
+
+1. **Clone the repository and install dependencies:**
+   ```bash
+   git clone https://github.com/yourusername/care-ai.git
+   cd care-ai
+   npm install --legacy-peer-deps
+   ```
+
+2. **Set up your environment:**
+   ```bash
+   cp .env.example .env
+   ```
+   Edit the `.env` file and fill in your API keys and credentials.
+
+3. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Handling Expo/Metro issues:**
+   If you encounter bundler issues, use the reset script:
+   ```bash
+   ./reset-project.sh
+   ```
+
+5. **Running on device:**
+   - iOS: `npm run ios`
+   - Android: `npm run android`
+   
+   Or scan the QR code in the terminal with the Expo Go app.
+
+6. **Testing your setup:**
+   ```bash
+   npm test
+   ```
+
+7. **Common issues and solutions:**
+   - Metro bundler hanging: `watchman watch-del-all && npm run dev`
+   - Missing modules: `npm install --legacy-peer-deps`
+   - iOS build errors: Check Xcode settings and provisioning profiles
+   - Android build errors: Check gradlew permissions and Android SDK setup
