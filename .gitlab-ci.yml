@@ -1,0 +1,76 @@
+stages:
+  - setup
+  - lint
+  - test
+  - build
+
+variables:
+  NODE_VERSION: "18.18.0"
+  EXPO_VERSION: "52.0.0"
+  EXPO_CLI_VERSION: "6.3.10"
+
+before_script:
+  - node -v
+  - npm -v
+
+setup:
+  stage: setup
+  image: node:${NODE_VERSION}
+  script:
+    - npm ci --legacy-peer-deps
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+  artifacts:
+    paths:
+      - node_modules/
+
+lint:
+  stage: lint
+  image: node:${NODE_VERSION}
+  script:
+    - npm run lint
+  dependencies:
+    - setup
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+    policy: pull
+
+test:
+  stage: test
+  image: node:${NODE_VERSION}
+  script:
+    - npm run test:ci
+  dependencies:
+    - setup
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+    policy: pull
+
+build_expo:
+  stage: build
+  image: node:${NODE_VERSION}
+  script:
+    - npm install -g expo-cli@${EXPO_CLI_VERSION}
+    - npx expo doctor
+    - npx expo export --dump-sourcemap
+  dependencies:
+    - setup
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+    policy: pull
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+  only:
+    - main
+    - develop
+    - /^release\/.*$/ 
