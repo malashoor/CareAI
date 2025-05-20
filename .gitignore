@@ -78,3 +78,5 @@ I:/Projects/Important/careai-454918-b52034c54528.json
 
 # Google Play credentials
 google-play-service-account.json
+# Watchman cookies
+.watchman-cookie-*
