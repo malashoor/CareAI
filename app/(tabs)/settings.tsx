@@ -1,6 +1,16 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Switch } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Switch, Alert } from 'react-native';
+import { useRouter } from 'expo-router';
 import { User, Heart, Bell, Shield, Brain, ChevronRight, LogOut } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '@/hooks/useAuth';
+
+interface SettingsState {
+  voiceNotifications: boolean;
+  medicationReminders: boolean;
+  privacySettings: boolean;
+}
 
 const settingSections = [
   {
@@ -14,12 +24,14 @@ const settingSections = [
         title: 'Personal Information',
         subtitle: 'Update your details',
         type: 'link',
+        route: '/settings/personal-info',
       },
       {
         id: 'health',
         title: 'Health Profile',
         subtitle: 'Medical history and conditions',
         type: 'link',
+        route: '/settings/health-profile',
       },
     ],
   },
@@ -33,13 +45,13 @@ const settingSections = [
         id: 'notifications',
         title: 'Voice Notifications',
         type: 'toggle',
-        value: true,
+        key: 'voiceNotifications',
       },
       {
         id: 'reminders',
         title: 'Medication Reminders',
         type: 'toggle',
-        value: true,
+        key: 'medicationReminders',
       },
     ],
   },
@@ -54,12 +66,14 @@ const settingSections = [
         title: 'Voice Recognition',
         subtitle: 'Customize voice settings',
         type: 'link',
+        route: '/settings/voice-settings',
       },
       {
         id: 'learning',
         title: 'Learning Preferences',
         subtitle: 'How AI adapts to you',
         type: 'link',
+        route: '/settings/learning-preferences',
       },
     ],
   },
@@ -74,31 +88,116 @@ const settingSections = [
         title: 'Emergency Contacts',
         subtitle: 'Manage your contacts',
         type: 'link',
+        route: '/settings/emergency-contacts',
       },
       {
         id: 'privacy',
         title: 'Privacy Settings',
         type: 'toggle',
-        value: true,
+        key: 'privacySettings',
       },
     ],
   },
 ];
 
 export default function SettingsScreen() {
+  const router = useRouter();
+  const { user, signOut } = useAuth();
+  const [settings, setSettings] = useState<SettingsState>({
+    voiceNotifications: true,
+    medicationReminders: true,
+    privacySettings: true,
+  });
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    try {
+      const savedSettings = await AsyncStorage.getItem('userSettings');
+      if (savedSettings) {
+        setSettings(JSON.parse(savedSettings));
+      }
+    } catch (error) {
+      console.error('Error loading settings:', error);
+    }
+  };
+
+  const saveSettings = async (newSettings: SettingsState) => {
+    try {
+      await AsyncStorage.setItem('userSettings', JSON.stringify(newSettings));
+      setSettings(newSettings);
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      Alert.alert('Error', 'Failed to save settings. Please try again.');
+    }
+  };
+
+  const handleToggleChange = (key: keyof SettingsState, value: boolean) => {
+    const newSettings = { ...settings, [key]: value };
+    saveSettings(newSettings);
+  };
+
+  const handleNavigation = (route: string) => {
+    // For now, show alert that these screens will be implemented
+    Alert.alert(
+      'Coming Soon',
+      `The ${route.split('/').pop()?.replace('-', ' ')} screen will be available in the next update.`,
+      [{ text: 'OK' }]
+    );
+  };
+
+  const handleEditProfile = () => {
+    Alert.alert(
+      'Edit Profile',
+      'Profile editing functionality will be available soon.',
+      [{ text: 'OK' }]
+    );
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Confirm Logout',
+      'Are you sure you want to log out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            setLoading(true);
+            try {
+              await signOut();
+              router.replace('/welcome');
+            } catch (error) {
+              console.error('Logout error:', error);
+              Alert.alert('Error', 'Failed to logout. Please try again.');
+            } finally {
+              setLoading(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.profile}>
           <Image
-            source={{ uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop' }}
+            source={{ 
+              uri: user?.avatar_url || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop'
+            }}
             style={styles.avatar}
           />
           <View style={styles.profileInfo}>
-            <Text style={styles.name}>Sarah Johnson</Text>
-            <Text style={styles.email}>sarah.j@example.com</Text>
+            <Text style={styles.name}>{user?.full_name || 'User Name'}</Text>
+            <Text style={styles.email}>{user?.email || 'user@example.com'}</Text>
           </View>
-          <TouchableOpacity style={styles.editButton}>
+          <TouchableOpacity style={styles.editButton} onPress={handleEditProfile}>
             <LinearGradient
               colors={['#E3F2FF', '#C7E5FF']}
               style={styles.editGradient}>
@@ -126,7 +225,12 @@ export default function SettingsScreen() {
               <TouchableOpacity
                 key={item.id}
                 style={styles.settingItem}
-                onPress={() => {}}>
+                onPress={() => {
+                  if (item.type === 'link' && item.route) {
+                    handleNavigation(item.route);
+                  }
+                }}
+                disabled={item.type === 'toggle'}>
                 <View style={styles.settingContent}>
                   <Text style={styles.settingTitle}>{item.title}</Text>
                   {item.subtitle && (
@@ -134,10 +238,10 @@ export default function SettingsScreen() {
                   )}
                 </View>
 
-                {item.type === 'toggle' ? (
+                {item.type === 'toggle' && item.key ? (
                   <Switch
-                    value={item.value}
-                    onValueChange={() => {}}
+                    value={settings[item.key as keyof SettingsState]}
+                    onValueChange={(value) => handleToggleChange(item.key as keyof SettingsState, value)}
                     trackColor={{ false: '#D1D1D6', true: '#34C759' }}
                     ios_backgroundColor="#D1D1D6"
                   />
@@ -149,14 +253,19 @@ export default function SettingsScreen() {
           </View>
         ))}
 
-        <TouchableOpacity style={styles.logoutButton}>
+        <TouchableOpacity 
+          style={styles.logoutButton} 
+          onPress={handleLogout}
+          disabled={loading}>
           <LinearGradient
             colors={['#FF3B30', '#FF2D55']}
             style={styles.logoutGradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}>
             <LogOut color="#FFF" size={24} />
-            <Text style={styles.logoutText}>Log Out</Text>
+            <Text style={styles.logoutText}>
+              {loading ? 'Logging Out...' : 'Log Out'}
+            </Text>
           </LinearGradient>
         </TouchableOpacity>
       </View>
