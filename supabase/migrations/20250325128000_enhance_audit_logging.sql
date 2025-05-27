@@ -1,7 +1,7 @@
 -- Create comprehensive audit log table
 CREATE TABLE IF NOT EXISTS audit_logs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  timestamp timestamptz DEFAULT now(),
+  "timestamp" timestamptz DEFAULT now(),
   user_id uuid REFERENCES auth.users(id),
   action_type text NOT NULL,
   entity_type text NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS audit_logs (
 );
 
 -- Create indexes for faster queries
-CREATE INDEX idx_audit_logs_timestamp ON audit_logs(timestamp DESC);
+CREATE INDEX idx_audit_logs_timestamp ON audit_logs("timestamp" DESC);
 CREATE INDEX idx_audit_logs_user_id ON audit_logs(user_id);
 CREATE INDEX idx_audit_logs_action_type ON audit_logs(action_type);
 CREATE INDEX idx_audit_logs_entity_type ON audit_logs(entity_type);
@@ -101,7 +101,7 @@ CREATE OR REPLACE FUNCTION get_entity_audit_trail(
 )
 RETURNS TABLE (
   id uuid,
-  timestamp timestamptz,
+  "timestamp" timestamptz,
   user_email text,
   user_role text,
   action_type text,

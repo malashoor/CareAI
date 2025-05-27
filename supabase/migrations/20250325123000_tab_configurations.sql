@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS tab_configurations (
   name text NOT NULL,
   title text NOT NULL,
   icon text NOT NULL,
-  order integer NOT NULL,
+  "order" integer NOT NULL,
   roles text[] NOT NULL,
   isEnabled boolean DEFAULT true,
   created_at timestamptz DEFAULT now(),
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS tab_configurations (
 );
 
 -- Insert default tab configurations
-INSERT INTO tab_configurations (name, title, icon, order, roles, isEnabled) VALUES
+INSERT INTO tab_configurations (name, title, icon, "order", roles, isEnabled) VALUES
   -- Senior tabs
   ('index', 'Home', 'home', 1, ARRAY['senior'], true),
   ('health', 'Health', 'heart', 2, ARRAY['senior'], true),
@@ -45,4 +45,4 @@ CREATE POLICY "Allow read access to all authenticated users"
 
 -- Create index for faster queries
 CREATE INDEX idx_tab_configurations_roles ON tab_configurations USING gin (roles);
-CREATE INDEX idx_tab_configurations_order ON tab_configurations (order); 
+CREATE INDEX idx_tab_configurations_order ON tab_configurations ("order"); 
