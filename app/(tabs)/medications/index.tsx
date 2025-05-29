@@ -1,185 +1,132 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Platform } from 'react-native';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  TouchableOpacity, 
+  Image, 
+  Platform,
+  ActivityIndicator,
+  RefreshControl,
+  Alert
+} from 'react-native';
 import { useRouter } from 'expo-router';
-import { Pill, Camera, Clock, Bell, Plus, TrendingUp, Calendar, Brain, CircleCheck as CheckCircle2, CircleAlert as AlertCircle } from 'lucide-react-native';
+import { 
+  Pill, 
+  Camera, 
+  Clock, 
+  Bell, 
+  Plus, 
+  TrendingUp, 
+  Calendar, 
+  Brain, 
+  CircleCheck as CheckCircle2, 
+  CircleAlert as AlertCircle,
+  Volume2 as VolumeUp,
+  BellRing,
+  Users
+} from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Speech from 'expo-speech';
-
-type Medication = {
-  id: string;
-  name: string;
-  dosage: string;
-  frequency: string;
-  timeOfDay: string[];
-  image: string;
-  nextDose: string;
-  color: string[];
-  adherenceRate: number;
-  streak: number;
-  lastTaken?: Date;
-  refillDate?: Date;
-  daysRemaining: number;
-  aiInsights?: string[];
-  missedDoses?: number;
-  sideEffects?: string[];
-};
-
-type AdherenceStats = {
-  weeklyRate: number;
-  monthlyRate: number;
-  currentStreak: number;
-  bestStreak: number;
-  insights: string[];
-  trends: {
-    label: string;
-    value: number;
-    change: number;
-  }[];
-};
+import * as Haptics from 'expo-haptics';
+import { useAuth } from '@/hooks/useAuth';
+import { useLanguage } from '@/hooks/useLanguage';
+import { useMedications } from '@/hooks/useMedications';
 
 export default function MedicationsScreen() {
   const router = useRouter();
-  const [medications, setMedications] = useState<Medication[]>([
-    {
-      id: '1',
-      name: 'Lisinopril',
-      dosage: '10mg',
-      frequency: 'Once daily',
-      timeOfDay: ['Morning'],
-      image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=200&auto=format&fit=crop',
-      nextDose: '8:00 AM',
-      color: ['#FF9500', '#FF7F00'],
-      adherenceRate: 95,
-      streak: 7,
-      lastTaken: new Date(Date.now() - 24 * 60 * 60 * 1000),
-      refillDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-      daysRemaining: 14,
-      aiInsights: [
-        'Great adherence pattern in the morning',
-        'Consider taking with breakfast for better absorption',
-        'Blood pressure readings show positive response',
-      ],
-      missedDoses: 2,
-      sideEffects: ['Mild dizziness', 'Dry cough'],
-    },
-    {
-      id: '2',
-      name: 'Metformin',
-      dosage: '500mg',
-      frequency: 'Twice daily',
-      timeOfDay: ['Morning', 'Evening'],
-      image: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?q=80&w=200&auto=format&fit=crop',
-      nextDose: '7:00 PM',
-      color: ['#5856D6', '#5E5CE6'],
-      adherenceRate: 88,
-      streak: 4,
-      lastTaken: new Date(Date.now() - 12 * 60 * 60 * 1000),
-      refillDate: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000),
-      daysRemaining: 21,
-      aiInsights: [
-        'Evening doses occasionally missed',
-        'Taking with meals reduces side effects',
-        'Consider setting a dinner-time reminder',
-      ],
-      missedDoses: 5,
-      sideEffects: ['Nausea when taken on empty stomach'],
-    },
-  ]);
-
-  const [adherenceStats, setAdherenceStats] = useState<AdherenceStats>({
-    weeklyRate: 92,
-    monthlyRate: 89,
-    currentStreak: 7,
-    bestStreak: 14,
-    insights: [
-      'Morning medication adherence is excellent',
-      'Evening doses need attention',
-      'Overall trend is improving',
-    ],
-    trends: [
-      {
-        label: 'Morning',
-        value: 95,
-        change: 2,
-      },
-      {
-        label: 'Evening',
-        value: 85,
-        change: -3,
-      },
-      {
-        label: 'Weekend',
-        value: 90,
-        change: 5,
-      },
-    ],
-  });
+  const { user } = useAuth();
+  const { t } = useLanguage();
+  const {
+    medications,
+    adherenceStats,
+    loading,
+    error,
+    recordDose,
+    toggleReminders,
+    toggleCaregiverAlerts,
+    todaysMedications,
+    upcomingMedications,
+    medicationsNeedingRefill
+  } = useMedications(user?.id || '');
 
   const [showAIInsights, setShowAIInsights] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [speakingMedication, setSpeakingMedication] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isInitialized) {
+    if (!loading && medications.length > 0) {
       // Check for medications that need refills soon
-      const medicationsNeedingRefills = medications.filter(med => med.daysRemaining <= 7);
-      if (medicationsNeedingRefills.length > 0) {
-        const message = `You have ${medicationsNeedingRefills.length} medication${
-          medicationsNeedingRefills.length > 1 ? 's' : ''
+      if (medicationsNeedingRefill.length > 0) {
+        const message = `You have ${medicationsNeedingRefill.length} medication${
+          medicationsNeedingRefill.length > 1 ? 's' : ''
         } that need refills soon. Would you like me to help you schedule refills?`;
         
-        // Only run speech on native platforms
         if (Platform.OS !== 'web') {
-          Speech.speak(message, {
-            rate: 0.8,
-            pitch: 1.0,
-          });
+          Speech.speak(message, { rate: 0.8, pitch: 1.0 });
         }
       }
-
-      // Check for missed doses and notify caregivers
-      const missedDoses = medications.filter(med => {
-        const lastTaken = med.lastTaken ? new Date(med.lastTaken) : new Date(0);
-        const hoursSinceLastDose = (Date.now() - lastTaken.getTime()) / (1000 * 60 * 60);
-        return hoursSinceLastDose > 24;
-      });
-
-      if (missedDoses.length > 0) {
-        // Simulate caregiver notification
-        console.log('Notifying caregivers about missed doses:', missedDoses.map(med => med.name));
-      }
-
-      setIsInitialized(true);
     }
-  }, [isInitialized, medications]);
+  }, [loading, medicationsNeedingRefill]);
 
-  const handleMedicationTaken = (id: string) => {
-    setMedications(prev =>
-      prev.map(med =>
-        med.id === id
-          ? {
-              ...med,
-              lastTaken: new Date(),
-              streak: med.streak + 1,
-              adherenceRate: Math.min(100, med.adherenceRate + 1),
-            }
-          : med
-      )
-    );
-
-    // Only run speech on native platforms
-    if (Platform.OS !== 'web') {
-      Speech.speak('Great job taking your medication! Keep up the good work!', {
-        rate: 0.8,
-        pitch: 1.0,
-      });
+  const handleMedicationTaken = async (medicationId: string) => {
+    try {
+      await recordDose(medicationId, 'taken');
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch (error) {
+      console.error('Error recording dose:', error);
+      Alert.alert('Error', 'Failed to record dose. Please try again.');
     }
+  };
 
-    setAdherenceStats(prev => ({
-      ...prev,
-      weeklyRate: Math.min(100, prev.weeklyRate + 0.5),
-      currentStreak: prev.currentStreak + 1,
-      bestStreak: Math.max(prev.bestStreak, prev.currentStreak + 1),
-    }));
+  const handleRemindersToggle = async (medicationId: string, currentState: boolean) => {
+    try {
+      await toggleReminders(medicationId, !currentState);
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch (error) {
+      console.error('Error toggling reminders:', error);
+      Alert.alert('Error', 'Failed to update reminders. Please try again.');
+    }
+  };
+
+  const handleCaregiverAlertsToggle = async (medicationId: string, currentState: boolean) => {
+    try {
+      await toggleCaregiverAlerts(medicationId, !currentState);
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch (error) {
+      console.error('Error toggling caregiver alerts:', error);
+      Alert.alert('Error', 'Failed to update caregiver alerts. Please try again.');
+    }
+  };
+
+  const speakMedicationDetails = async (medication: any) => {
+    if (Platform.OS === 'web') return;
+
+    setSpeakingMedication(medication.id);
+    const message = `${medication.name}, ${medication.dosage}, ${medication.frequency}. Next dose at ${medication.time_of_day.join(' and ')}. Adherence rate: ${medication.adherence_rate} percent.`;
+    
+    try {
+      await Speech.speak(message, { rate: 0.8, pitch: 1.0 });
+    } catch (error) {
+      console.error('Error speaking medication details:', error);
+    } finally {
+      setSpeakingMedication(null);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    // The hook will automatically refresh data through real-time subscriptions
+    setTimeout(() => setRefreshing(false), 1000);
+  };
+
+  const handleScanMedication = () => {
+    router.push('/medications/scan');
+  };
+
+  const handleAddMedication = () => {
+    router.push('/medications/add');
   };
 
   const renderTrendIndicator = (change: number) => {
@@ -192,89 +139,110 @@ export default function MedicationsScreen() {
     );
   };
 
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007AFF" />
+        <Text style={styles.loadingText}>Loading your medications...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <AlertCircle color="#FF3B30" size={48} />
+        <Text style={styles.errorTitle}>Unable to Load Medications</Text>
+        <Text style={styles.errorText}>{error}</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={() => window.location.reload()}>
+          <Text style={styles.retryButtonText}>Try Again</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView 
+      style={styles.container}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
+          colors={['#007AFF']}
+          tintColor="#007AFF"
+        />
+      }
+    >
       <View style={styles.header}>
         <Text style={styles.title}>Medications</Text>
         <Text style={styles.subtitle}>Track and manage your medications with AI assistance</Text>
       </View>
 
-      <View style={styles.adherenceCard}>
-        <LinearGradient
-          colors={['#007AFF', '#0055FF']}
-          style={styles.adherenceHeader}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}>
-          <View style={styles.adherenceTitle}>
-            <Brain color="#FFF" size={24} />
-            <Text style={styles.adherenceTitleText}>AI Health Insights</Text>
-          </View>
-          <TouchableOpacity
-            style={styles.insightButton}
-            onPress={() => setShowAIInsights(!showAIInsights)}>
-            <Text style={styles.insightButtonText}>
-              {showAIInsights ? 'Hide Insights' : 'View Insights'}
-            </Text>
-          </TouchableOpacity>
-        </LinearGradient>
-
-        {showAIInsights && (
-          <View style={styles.insightsContainer}>
-            <View style={styles.insightRow}>
-              <View style={styles.insightItem}>
-                <TrendingUp color="#34C759" size={20} />
-                <Text style={styles.insightLabel}>Weekly Adherence</Text>
-                <Text style={styles.insightValue}>{adherenceStats.weeklyRate}%</Text>
-              </View>
-              <View style={styles.insightItem}>
-                <Calendar color="#FF9500" size={20} />
-                <Text style={styles.insightLabel}>Monthly Average</Text>
-                <Text style={styles.insightValue}>{adherenceStats.monthlyRate}%</Text>
-              </View>
+      {adherenceStats && (
+        <View style={styles.adherenceCard}>
+          <LinearGradient
+            colors={['#007AFF', '#0055FF']}
+            style={styles.adherenceHeader}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}>
+            <View style={styles.adherenceTitle}>
+              <Brain color="#FFF" size={24} />
+              <Text style={styles.adherenceTitleText}>AI Health Insights</Text>
             </View>
-            <View style={styles.insightRow}>
-              <View style={styles.insightItem}>
-                <CheckCircle2 color="#5856D6" size={20} />
-                <Text style={styles.insightLabel}>Current Streak</Text>
-                <Text style={styles.insightValue}>{adherenceStats.currentStreak} days</Text>
-              </View>
-              <View style={styles.insightItem}>
-                <AlertCircle color="#FF2D55" size={20} />
-                <Text style={styles.insightLabel}>Best Streak</Text>
-                <Text style={styles.insightValue}>{adherenceStats.bestStreak} days</Text>
-              </View>
-            </View>
+            <TouchableOpacity
+              style={styles.insightButton}
+              onPress={() => setShowAIInsights(!showAIInsights)}>
+              <Text style={styles.insightButtonText}>
+                {showAIInsights ? 'Hide Insights' : 'View Insights'}
+              </Text>
+            </TouchableOpacity>
+          </LinearGradient>
 
-            <View style={styles.trendsContainer}>
-              <Text style={styles.trendsTitle}>Adherence Trends</Text>
-              {adherenceStats.trends.map((trend, index) => (
-                <View key={index} style={styles.trendItem}>
-                  <Text style={styles.trendLabel}>{trend.label}</Text>
-                  <View style={styles.trendValue}>
-                    <Text style={styles.trendPercentage}>{trend.value}%</Text>
-                    {renderTrendIndicator(trend.change)}
+          {showAIInsights && (
+            <View style={styles.insightsContainer}>
+              <View style={styles.insightRow}>
+                <View style={styles.insightItem}>
+                  <TrendingUp color="#34C759" size={20} />
+                  <Text style={styles.insightLabel}>Weekly Adherence</Text>
+                  <Text style={styles.insightValue}>{adherenceStats.weeklyRate}%</Text>
+                </View>
+                <View style={styles.insightItem}>
+                  <Calendar color="#FF9500" size={20} />
+                  <Text style={styles.insightLabel}>Monthly Average</Text>
+                  <Text style={styles.insightValue}>{adherenceStats.monthlyRate}%</Text>
+                </View>
+              </View>
+              <View style={styles.insightRow}>
+                <View style={styles.insightItem}>
+                  <CheckCircle2 color="#5856D6" size={20} />
+                  <Text style={styles.insightLabel}>Current Streak</Text>
+                  <Text style={styles.insightValue}>{adherenceStats.currentStreak} days</Text>
+                </View>
+                <View style={styles.insightItem}>
+                  <AlertCircle color="#FF2D55" size={20} />
+                  <Text style={styles.insightLabel}>Best Streak</Text>
+                  <Text style={styles.insightValue}>{adherenceStats.bestStreak} days</Text>
+                </View>
+              </View>
+
+              <View style={styles.aiInsightsContainer}>
+                <Text style={styles.aiInsightsTitle}>AI Recommendations</Text>
+                {adherenceStats.insights.map((insight, index) => (
+                  <View key={index} style={styles.aiInsightItem}>
+                    <Brain color="#007AFF" size={16} />
+                    <Text style={styles.aiInsightText}>{insight}</Text>
                   </View>
-                </View>
-              ))}
+                ))}
+              </View>
             </View>
-
-            <View style={styles.aiInsightsContainer}>
-              <Text style={styles.aiInsightsTitle}>AI Recommendations</Text>
-              {adherenceStats.insights.map((insight, index) => (
-                <View key={index} style={styles.aiInsightItem}>
-                  <Brain color="#007AFF" size={16} />
-                  <Text style={styles.aiInsightText}>{insight}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        )}
-      </View>
+          )}
+        </View>
+      )}
 
       <View style={styles.actionsContainer}>
         <TouchableOpacity
           style={styles.actionButton}
-          onPress={() => router.push('/medications/scan')}>
+          onPress={handleScanMedication}>
           <LinearGradient
             colors={['#007AFF', '#0055FF']}
             style={styles.actionGradient}
@@ -285,7 +253,9 @@ export default function MedicationsScreen() {
           </LinearGradient>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity 
+          style={styles.actionButton}
+          onPress={() => router.push('/medications/reminders')}>
           <LinearGradient
             colors={['#34C759', '#32D74B']}
             style={styles.actionGradient}
@@ -296,7 +266,9 @@ export default function MedicationsScreen() {
           </LinearGradient>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity 
+          style={styles.actionButton}
+          onPress={() => router.push('/medications/caregivers')}>
           <LinearGradient
             colors={['#FF3B30', '#FF2D55']}
             style={styles.actionGradient}
@@ -311,79 +283,117 @@ export default function MedicationsScreen() {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Today's Schedule</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleAddMedication}>
             <Plus color="#007AFF" size={24} />
           </TouchableOpacity>
         </View>
 
-        {medications.map((medication) => (
-          <TouchableOpacity
-            key={medication.id}
-            style={styles.medicationCard}
-            onPress={() => router.push('/medications/details')}>
-            <Image source={{ uri: medication.image }} style={styles.medicationImage} />
-            <View style={styles.medicationInfo}>
-              <View style={styles.medicationHeader}>
-                <Text style={styles.medicationName}>{medication.name}</Text>
-                <Text style={styles.medicationDosage}>{medication.dosage}</Text>
-              </View>
-              <Text style={styles.medicationFrequency}>{medication.frequency}</Text>
-              <View style={styles.timeContainer}>
-                <Clock color="#666666" size={16} />
-                <Text style={styles.nextDoseText}>Next dose: {medication.nextDose}</Text>
-              </View>
-              <View style={styles.adherenceContainer}>
-                <View style={styles.adherenceBar}>
-                  <View
-                    style={[
-                      styles.adheranceProgress,
-                      { width: `${medication.adherenceRate}%` },
-                    ]}
-                  />
+        {medications.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Pill color="#666666" size={48} />
+            <Text style={styles.emptyTitle}>No Medications Added</Text>
+            <Text style={styles.emptyText}>
+              Add your first medication to start tracking your health journey
+            </Text>
+            <TouchableOpacity style={styles.addFirstButton} onPress={handleAddMedication}>
+              <Text style={styles.addFirstButtonText}>Add Medication</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          medications.map((medication) => (
+            <TouchableOpacity
+              key={medication.id}
+              style={styles.medicationCard}
+              onPress={() => router.push(`/medications/details?id=${medication.id}`)}>
+              <Image 
+                source={{ uri: medication.image_url || 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=200&auto=format&fit=crop' }} 
+                style={styles.medicationImage} 
+              />
+              <View style={styles.medicationInfo}>
+                <View style={styles.medicationHeader}>
+                  <Text style={styles.medicationName}>{medication.name}</Text>
+                  <Text style={styles.medicationDosage}>{medication.dosage}</Text>
                 </View>
-                <Text style={styles.adherenceText}>
-                  {medication.adherenceRate}% adherence
-                </Text>
-              </View>
-
-              {medication.aiInsights && medication.aiInsights.length > 0 && (
-                <View style={styles.medicationInsights}>
-                  <Brain color="#007AFF" size={16} />
-                  <Text style={styles.insightText}>{medication.aiInsights[0]}</Text>
-                </View>
-              )}
-
-              {medication.daysRemaining <= 7 && (
-                <View style={styles.refillAlert}>
-                  <AlertCircle color="#FF3B30" size={16} />
-                  <Text style={styles.refillText}>
-                    Refill needed in {medication.daysRemaining} days
+                <Text style={styles.medicationFrequency}>{medication.frequency}</Text>
+                <View style={styles.timeContainer}>
+                  <Clock color="#666666" size={16} />
+                  <Text style={styles.nextDoseText}>
+                    Next: {medication.time_of_day.join(', ')}
                   </Text>
                 </View>
-              )}
-
-              {medication.sideEffects && medication.sideEffects.length > 0 && (
-                <View style={styles.sideEffectsContainer}>
-                  <Text style={styles.sideEffectsTitle}>Reported Side Effects:</Text>
-                  {medication.sideEffects.map((effect, index) => (
-                    <Text key={index} style={styles.sideEffectText}>• {effect}</Text>
-                  ))}
+                <View style={styles.adherenceContainer}>
+                  <View style={styles.adherenceBar}>
+                    <View
+                      style={[
+                        styles.adheranceProgress,
+                        { width: `${medication.adherence_rate}%` },
+                      ]}
+                    />
+                  </View>
+                  <Text style={styles.adherenceText}>
+                    {medication.adherence_rate}% adherence
+                  </Text>
                 </View>
-              )}
-            </View>
-            <TouchableOpacity
-              style={styles.takeButton}
-              onPress={() => handleMedicationTaken(medication.id)}>
-              <LinearGradient
-                colors={medication.color}
-                style={styles.takeButtonGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}>
-                <CheckCircle2 color="#FFF" size={20} />
-              </LinearGradient>
+
+                {medication.instructions && (
+                  <View style={styles.medicationInsights}>
+                    <Brain color="#007AFF" size={16} />
+                    <Text style={styles.insightText}>{medication.instructions}</Text>
+                  </View>
+                )}
+
+                {medication.days_remaining && medication.days_remaining <= 7 && (
+                  <View style={styles.refillAlert}>
+                    <AlertCircle color="#FF3B30" size={16} />
+                    <Text style={styles.refillText}>
+                      Refill needed in {medication.days_remaining} days
+                    </Text>
+                  </View>
+                )}
+
+                {medication.side_effects && medication.side_effects.length > 0 && (
+                  <View style={styles.sideEffectsContainer}>
+                    <Text style={styles.sideEffectsTitle}>Reported Side Effects:</Text>
+                    {medication.side_effects.map((effect, index) => (
+                      <Text key={index} style={styles.sideEffectText}>• {effect}</Text>
+                    ))}
+                  </View>
+                )}
+              </View>
+              <View style={styles.medicationActions}>
+                <TouchableOpacity
+                  style={[styles.actionIcon, { backgroundColor: medication.reminder_enabled ? '#34C759' : '#E5E5EA' }]}
+                  onPress={() => handleRemindersToggle(medication.id, medication.reminder_enabled)}>
+                  <BellRing color={medication.reminder_enabled ? "#FFF" : "#666"} size={16} />
+                </TouchableOpacity>
+                
+                <TouchableOpacity
+                  style={[styles.actionIcon, { backgroundColor: medication.caregiver_alerts ? '#FF9500' : '#E5E5EA' }]}
+                  onPress={() => handleCaregiverAlertsToggle(medication.id, medication.caregiver_alerts)}>
+                  <Users color={medication.caregiver_alerts ? "#FFF" : "#666"} size={16} />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.actionIcon}
+                  onPress={() => speakMedicationDetails(medication)}>
+                  <VolumeUp color={speakingMedication === medication.id ? "#007AFF" : "#666"} size={16} />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.takeButton}
+                  onPress={() => handleMedicationTaken(medication.id)}>
+                  <LinearGradient
+                    colors={['#34C759', '#32D74B']}
+                    style={styles.takeButtonGradient}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}>
+                    <CheckCircle2 color="#FFF" size={20} />
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
             </TouchableOpacity>
-          </TouchableOpacity>
-        ))}
+          ))
+        )}
       </View>
 
       <View style={styles.aiAssistantCard}>
@@ -408,6 +418,50 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F2F2F7',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F2F2F7',
+  },
+  loadingText: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    color: '#666666',
+    marginTop: 16,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F2F2F7',
+    padding: 24,
+  },
+  errorTitle: {
+    fontSize: 20,
+    fontFamily: 'Inter-Bold',
+    color: '#000000',
+    marginTop: 16,
+  },
+  errorText: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    color: '#666666',
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  retryButton: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginTop: 16,
+  },
+  retryButtonText: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#FFFFFF',
   },
   header: {
     padding: 24,
@@ -498,39 +552,6 @@ const styles = StyleSheet.create({
     color: '#000000',
     marginTop: 4,
   },
-  trendsContainer: {
-    marginTop: 16,
-    backgroundColor: '#F8F8F8',
-    padding: 16,
-    borderRadius: 12,
-  },
-  trendsTitle: {
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-    color: '#000000',
-    marginBottom: 12,
-  },
-  trendItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  trendLabel: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    color: '#000000',
-  },
-  trendValue: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  trendPercentage: {
-    fontSize: 14,
-    fontFamily: 'Inter-SemiBold',
-    color: '#000000',
-    marginRight: 8,
-  },
   trendChange: {
     fontSize: 12,
     fontFamily: 'Inter-Regular',
@@ -596,6 +617,35 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontFamily: 'Inter-SemiBold',
     color: '#000000',
+  },
+  emptyState: {
+    alignItems: 'center',
+    padding: 48,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontFamily: 'Inter-SemiBold',
+    color: '#000000',
+    marginTop: 16,
+  },
+  emptyText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#666666',
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  addFirstButton: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginTop: 16,
+  },
+  addFirstButtonText: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#FFFFFF',
   },
   medicationCard: {
     flexDirection: 'row',
@@ -712,8 +762,21 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
     color: '#666666',
   },
-  takeButton: {
+  medicationActions: {
     marginLeft: 12,
+    alignItems: 'center',
+    gap: 8,
+  },
+  actionIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#E5E5EA',
+  },
+  takeButton: {
+    marginTop: 8,
   },
   takeButtonGradient: {
     width: 40,

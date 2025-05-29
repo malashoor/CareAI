@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Platform } from 'react-native';
 import * as Speech from 'expo-speech';
+import * as Haptics from 'expo-haptics';
 import { supabase } from '@/lib/supabase';
 import type { User } from '@/types/user';
 
@@ -40,9 +41,12 @@ export interface Appointment {
 export function useAppointments(userId: string, role: 'senior' | 'medical') {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadAppointments();
+    if (userId) {
+      loadAppointments();
+    }
 
     const subscription = supabase
       .channel('appointments')
@@ -68,107 +72,200 @@ export function useAppointments(userId: string, role: 'senior' | 'medical') {
   }, [userId, role]);
 
   const loadAppointments = async () => {
-    const query = supabase
-      .from('appointments')
-      .select(`
-        *,
-        senior:profiles!appointments_senior_id_fkey(id, name, avatar_url, role),
-        professional:profiles!appointments_professional_id_fkey(id, name, avatar_url, role)
-      `)
-      .order('start_time', { ascending: true });
+    try {
+      setLoading(true);
+      const query = supabase
+        .from('appointments')
+        .select(`
+          *,
+          senior:profiles!appointments_senior_id_fkey(id, name, avatar_url, role),
+          professional:profiles!appointments_professional_id_fkey(id, name, avatar_url, role)
+        `)
+        .order('start_time', { ascending: true });
 
-    if (role === 'senior') {
-      query.eq('senior_id', userId);
-    } else {
-      query.eq('professional_id', userId);
-    }
+      if (role === 'senior') {
+        query.eq('senior_id', userId);
+      } else {
+        query.eq('professional_id', userId);
+      }
 
-    const { data, error } = await query;
+      const { data, error } = await query;
 
-    if (error) {
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      // If no data exists, create sample appointments for demo
+      if (!data || data.length === 0) {
+        await createSampleAppointments();
+        return;
+      }
+
+      setAppointments(data || []);
+    } catch (error) {
       console.error('Error loading appointments:', error);
-      return;
+      setError('Failed to load appointments');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createSampleAppointments = async () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(10, 0, 0, 0);
+
+    const nextWeek = new Date();
+    nextWeek.setDate(nextWeek.getDate() + 7);
+    nextWeek.setHours(14, 30, 0, 0);
+
+    const sampleAppointments = [
+      {
+        senior_id: userId,
+        professional_id: 'sample-doctor-1',
+        title: 'Regular Checkup',
+        description: 'Routine health examination and vital signs check',
+        location: {
+          name: 'CareAI Medical Center',
+          address: '123 Health St, Medical District',
+          coordinates: { latitude: 37.7749, longitude: -122.4194 }
+        },
+        start_time: tomorrow.toISOString(),
+        end_time: new Date(tomorrow.getTime() + 60 * 60 * 1000).toISOString(),
+        status: 'scheduled' as const,
+        instructions: 'Please bring your insurance card and current medication list',
+        reminder_preferences: {
+          advance_notice: 24,
+          pre_appointment_notice: 30,
+          notification_type: 'both' as const
+        }
+      },
+      {
+        senior_id: userId,
+        professional_id: 'sample-doctor-2',
+        title: 'Cardiology Consultation',
+        description: 'Follow-up appointment for heart health monitoring',
+        location: {
+          name: 'Heart Health Clinic',
+          address: '456 Cardiac Ave, Downtown',
+          coordinates: { latitude: 37.7849, longitude: -122.4094 }
+        },
+        start_time: nextWeek.toISOString(),
+        end_time: new Date(nextWeek.getTime() + 45 * 60 * 1000).toISOString(),
+        status: 'scheduled' as const,
+        instructions: 'Fasting required 12 hours before appointment',
+        reminder_preferences: {
+          advance_notice: 48,
+          pre_appointment_notice: 60,
+          notification_type: 'voice' as const
+        }
+      }
+    ];
+
+    for (const appointment of sampleAppointments) {
+      await supabase.from('appointments').insert(appointment);
     }
 
-    setAppointments(data || []);
-    setLoading(false);
+    await loadAppointments();
   };
 
   const createAppointment = async (
-    seniorId: string,
-    appointment: Omit<Appointment, 'id' | 'professional_id' | 'created_at' | 'updated_at'>
+    appointment: Omit<Appointment, 'id' | 'created_at' | 'updated_at'>
   ) => {
-    const { data, error } = await supabase
-      .from('appointments')
-      .insert({
-        ...appointment,
-        senior_id: seniorId,
-        professional_id: userId,
-      })
-      .select()
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('appointments')
+        .insert({
+          ...appointment,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .select()
+        .single();
 
-    if (error) throw error;
+      if (error) throw error;
 
-    // Schedule reminders
-    await createReminders(data.id, appointment.start_time, appointment.reminder_preferences);
+      // Schedule reminders
+      await createReminders(data.id, appointment.start_time, appointment.reminder_preferences);
 
-    // Send confirmation notification
-    if (Platform.OS !== 'web') {
-      Speech.speak(
-        `New appointment scheduled for ${new Date(appointment.start_time).toLocaleDateString()}`,
-        { rate: 0.8, pitch: 1.0 }
-      );
+      // Send confirmation notification
+      if (Platform.OS !== 'web') {
+        await Speech.speak(
+          `New appointment scheduled for ${new Date(appointment.start_time).toLocaleDateString()}`,
+          { rate: 0.8, pitch: 1.0 }
+        );
+      }
+
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      return data;
+    } catch (error) {
+      console.error('Error creating appointment:', error);
+      throw error;
     }
-
-    return data;
   };
 
   const updateAppointment = async (
     appointmentId: string,
     updates: Partial<Appointment>
   ) => {
-    const { data, error } = await supabase
-      .from('appointments')
-      .update({
-        ...updates,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', appointmentId)
-      .select()
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('appointments')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', appointmentId)
+        .select()
+        .single();
 
-    if (error) throw error;
+      if (error) throw error;
 
-    // Update reminders if time changed
-    if (updates.start_time || updates.reminder_preferences) {
-      await updateReminders(
-        appointmentId,
-        updates.start_time || data.start_time,
-        updates.reminder_preferences || data.reminder_preferences
-      );
+      // Update reminders if time changed
+      if (updates.start_time || updates.reminder_preferences) {
+        await updateReminders(
+          appointmentId,
+          updates.start_time || data.start_time,
+          updates.reminder_preferences || data.reminder_preferences
+        );
+      }
+
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      return data;
+    } catch (error) {
+      console.error('Error updating appointment:', error);
+      throw error;
     }
-
-    return data;
   };
 
   const cancelAppointment = async (appointmentId: string) => {
-    const { error } = await supabase
-      .from('appointments')
-      .update({
-        status: 'cancelled',
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', appointmentId);
+    try {
+      const { error } = await supabase
+        .from('appointments')
+        .update({
+          status: 'cancelled',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', appointmentId);
 
-    if (error) throw error;
+      if (error) throw error;
 
-    // Cancel pending reminders
-    await supabase
-      .from('appointment_reminders')
-      .update({ status: 'cancelled' })
-      .eq('appointment_id', appointmentId)
-      .eq('status', 'pending');
+      // Cancel pending reminders
+      await supabase
+        .from('appointment_reminders')
+        .update({ status: 'cancelled' })
+        .eq('appointment_id', appointmentId)
+        .eq('status', 'pending');
+
+      if (Platform.OS !== 'web') {
+        await Speech.speak('Appointment cancelled successfully.', { rate: 0.8, pitch: 1.0 });
+      }
+
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    } catch (error) {
+      console.error('Error cancelling appointment:', error);
+      throw error;
+    }
   };
 
   const createReminders = async (
@@ -176,27 +273,33 @@ export function useAppointments(userId: string, role: 'senior' | 'medical') {
     startTime: string,
     preferences: ReminderPreferences
   ) => {
-    const start = new Date(startTime);
-    const reminders = [
-      {
-        appointment_id: appointmentId,
-        type: 'advance',
-        scheduled_time: new Date(start.getTime() - preferences.advance_notice * 60 * 60 * 1000),
-        status: 'pending'
-      },
-      {
-        appointment_id: appointmentId,
-        type: 'pre_appointment',
-        scheduled_time: new Date(start.getTime() - preferences.pre_appointment_notice * 60 * 1000),
-        status: 'pending'
+    try {
+      const start = new Date(startTime);
+      const reminders = [
+        {
+          appointment_id: appointmentId,
+          type: 'advance',
+          scheduled_time: new Date(start.getTime() - preferences.advance_notice * 60 * 60 * 1000),
+          status: 'pending'
+        },
+        {
+          appointment_id: appointmentId,
+          type: 'pre_appointment',
+          scheduled_time: new Date(start.getTime() - preferences.pre_appointment_notice * 60 * 1000),
+          status: 'pending'
+        }
+      ];
+
+      const { error } = await supabase
+        .from('appointment_reminders')
+        .insert(reminders);
+
+      if (error && error.code !== 'PGRST116') {
+        console.warn('Could not create reminders:', error);
       }
-    ];
-
-    const { error } = await supabase
-      .from('appointment_reminders')
-      .insert(reminders);
-
-    if (error) throw error;
+    } catch (error) {
+      console.warn('Error creating reminders:', error);
+    }
   };
 
   const updateReminders = async (
@@ -204,20 +307,25 @@ export function useAppointments(userId: string, role: 'senior' | 'medical') {
     startTime: string,
     preferences: ReminderPreferences
   ) => {
-    // Cancel existing pending reminders
-    await supabase
-      .from('appointment_reminders')
-      .update({ status: 'cancelled' })
-      .eq('appointment_id', appointmentId)
-      .eq('status', 'pending');
+    try {
+      // Cancel existing pending reminders
+      await supabase
+        .from('appointment_reminders')
+        .update({ status: 'cancelled' })
+        .eq('appointment_id', appointmentId)
+        .eq('status', 'pending');
 
-    // Create new reminders
-    await createReminders(appointmentId, startTime, preferences);
+      // Create new reminders
+      await createReminders(appointmentId, startTime, preferences);
+    } catch (error) {
+      console.warn('Error updating reminders:', error);
+    }
   };
 
   return {
     appointments,
     loading,
+    error,
     createAppointment,
     updateAppointment,
     cancelAppointment,

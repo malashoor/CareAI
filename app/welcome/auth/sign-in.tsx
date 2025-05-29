@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Mail, Lock, ArrowRight, Volume2 as VolumeUp, Globe } from 'lucide-react-native';
+import { Mail, Lock, ArrowRight, Volume2 as VolumeUp, Globe, Eye, EyeOff } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Speech from 'expo-speech';
 import { supabase } from '@/lib/supabase';
@@ -16,7 +16,7 @@ interface SignInError {
 
 export default function SignInScreen() {
   const router = useRouter();
-  const { t, language, changeLanguage, isRTL } = useLanguage();
+  const { t, language, changeLanguage, isRTL, availableLanguages } = useLanguage();
   const { isOnline } = useOfflineStorage();
   
   const [email, setEmail] = useState('');
@@ -24,13 +24,18 @@ export default function SignInScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<SignInError | null>(null);
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  // Voice feedback for errors
+  // Voice feedback for errors and instructions
   useEffect(() => {
     if (error && Platform.OS !== 'web') {
-      Speech.speak(error.message, { rate: 0.8, pitch: 1.0 });
+      Speech.speak(error.message, { 
+        rate: 0.8, 
+        pitch: 1.0,
+        language: isRTL ? 'ar' : 'en'
+      });
     }
-  }, [error]);
+  }, [error, isRTL]);
 
   const validateForm = (): boolean => {
     if (!email) {
@@ -127,28 +132,49 @@ export default function SignInScreen() {
 
   const speakInstructions = () => {
     if (Platform.OS !== 'web') {
-      Speech.speak(t('signInInstructions'), { rate: 0.8, pitch: 1.0 });
+      Speech.speak(t('signInInstructions'), { 
+        rate: 0.8, 
+        pitch: 1.0,
+        language: isRTL ? 'ar' : 'en'
+      });
     }
   };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+    // Announce to screen readers
+    if (Platform.OS !== 'web') {
+      Speech.speak(showPassword ? t('hidePassword') : t('showPassword'), {
+        rate: 0.8,
+        pitch: 1.0,
+        language: isRTL ? 'ar' : 'en'
+      });
+    }
+  };
+
   return (
     <View style={[styles.container, isRTL ? styles.rtlContainer : null]}>
       <Image
         source={{ uri: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2000&auto=format&fit=crop' }}
         style={styles.backgroundImage}
+        accessibilityIgnoresInvertColors
       />
       <LinearGradient
         colors={['rgba(0,0,0,0.3)', 'rgba(0,0,0,0.8)']}
         style={styles.overlay}>
         <View style={styles.content}>
           <TouchableOpacity
-            style={styles.languageButton}
-            onPress={() => setShowLanguageSelector(!showLanguageSelector)}>
+            style={[styles.languageButton, isRTL && styles.languageButtonRTL]}
+            onPress={() => setShowLanguageSelector(!showLanguageSelector)}
+            accessibilityRole="button"
+            accessibilityLabel={`${t('settings')} - ${language.toUpperCase()}`}
+            accessibilityHint="Tap to change language">
             <Globe color="#FFFFFF" size={24} />
             <Text style={styles.languageButtonText}>{language.toUpperCase()}</Text>
           </TouchableOpacity>
 
           {showLanguageSelector && (
-            <View style={styles.languageSelector}>
+            <View style={[styles.languageSelector, isRTL && styles.languageSelectorRTL]}>
               {availableLanguages.map((lang) => (
                 <TouchableOpacity
                   key={lang}
@@ -159,7 +185,10 @@ export default function SignInScreen() {
                   onPress={() => {
                     changeLanguage(lang);
                     setShowLanguageSelector(false);
-                  }}>
+                  }}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Select ${lang} language`}
+                  accessibilityState={{ selected: language === lang }}>
                   <Text style={[
                     styles.languageOptionText,
                     language === lang && styles.selectedLanguageText
@@ -171,12 +200,15 @@ export default function SignInScreen() {
             </View>
           )}
 
-          <Text style={styles.title}>{t('welcomeBack')}</Text>
-          <Text style={styles.subtitle}>{t('signInToContinue')}</Text>
+          <Text style={[styles.title, isRTL && styles.rtlText]}>{t('welcomeBack')}</Text>
+          <Text style={[styles.subtitle, isRTL && styles.rtlText]}>{t('signInToContinue')}</Text>
 
           <TouchableOpacity
             style={styles.voiceHelpButton}
-            onPress={speakInstructions}>
+            onPress={speakInstructions}
+            accessibilityRole="button"
+            accessibilityLabel={t('listenToInstructions')}
+            accessibilityHint="Tap to hear sign in instructions">
             <VolumeUp color="#FFFFFF" size={24} />
             <Text style={styles.voiceHelpText}>{t('listenToInstructions')}</Text>
           </TouchableOpacity>
@@ -186,11 +218,13 @@ export default function SignInScreen() {
               styles.errorContainer,
               error.type === 'network' && styles.networkError
             ]}>
-              <Text style={styles.errorText}>{error.message}</Text>
+              <Text style={[styles.errorText, isRTL && styles.rtlText]}>{error.message}</Text>
               {error.type === 'network' && (
                 <TouchableOpacity
                   style={styles.retryButton}
-                  onPress={handleSignIn}>
+                  onPress={handleSignIn}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('retryConnection')}>
                   <Text style={styles.retryText}>{t('retryConnection')}</Text>
                 </TouchableOpacity>
               )}
@@ -211,6 +245,8 @@ export default function SignInScreen() {
                 textContentType="emailAddress"
                 autoComplete="email"
                 writingDirection={isRTL ? 'rtl' : 'ltr'}
+                accessibilityLabel={t('emailPlaceholder')}
+                accessibilityHint="Enter your email address"
               />
             </View>
 
@@ -222,23 +258,42 @@ export default function SignInScreen() {
                 placeholderTextColor="#FFFFFF80"
                 value={password}
                 onChangeText={setPassword}
-                secureTextEntry
+                secureTextEntry={!showPassword}
                 textContentType="password"
                 autoComplete="password"
                 writingDirection={isRTL ? 'rtl' : 'ltr'}
+                accessibilityLabel={t('passwordPlaceholder')}
+                accessibilityHint="Enter your password"
               />
+              <TouchableOpacity
+                onPress={togglePasswordVisibility}
+                style={styles.passwordToggle}
+                accessibilityRole="button"
+                accessibilityLabel={showPassword ? t('hidePassword') : t('showPassword')}
+                accessibilityHint={showPassword ? 'Hide password' : 'Show password'}>
+                {showPassword ? (
+                  <EyeOff color="#FFFFFF" size={20} />
+                ) : (
+                  <Eye color="#FFFFFF" size={20} />
+                )}
+              </TouchableOpacity>
             </View>
 
             <TouchableOpacity
-              style={styles.forgotPassword}
-              onPress={() => router.push('/welcome/auth/forgot-password')}>
-              <Text style={styles.forgotPasswordText}>{t('forgotPassword')}</Text>
+              style={[styles.forgotPassword, isRTL && styles.forgotPasswordRTL]}
+              onPress={() => router.push('/welcome/auth/forgot-password')}
+              accessibilityRole="button"
+              accessibilityLabel={t('forgotPassword')}>
+              <Text style={[styles.forgotPasswordText, isRTL && styles.rtlText]}>{t('forgotPassword')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.signInButton}
+              style={[styles.signInButton, loading && styles.buttonDisabled]}
               onPress={handleSignIn}
-              disabled={loading}>
+              disabled={loading}
+              accessibilityRole="button"
+              accessibilityLabel={loading ? t('signingIn') : t('signIn')}
+              accessibilityState={{ disabled: loading }}>
               <LinearGradient
                 colors={['#007AFF', '#0055FF']}
                 style={styles.buttonGradient}>
@@ -250,11 +305,13 @@ export default function SignInScreen() {
             </TouchableOpacity>
           </View>
 
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>{t('noAccount')}</Text>
+          <View style={[styles.footer, isRTL && styles.footerRTL]}>
+            <Text style={[styles.footerText, isRTL && styles.rtlText]}>{t('noAccount')}</Text>
             <TouchableOpacity
-              onPress={() => router.push('/welcome/auth/sign-up')}>
-              <Text style={styles.signUpText}>{t('signUp')}</Text>
+              onPress={() => router.push('/welcome/auth/sign-up')}
+              accessibilityRole="button"
+              accessibilityLabel={t('signUp')}>
+              <Text style={[styles.signUpText, isRTL && styles.rtlText]}>{t('signUp')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -293,6 +350,10 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 20,
   },
+  languageButtonRTL: {
+    left: 24,
+    right: 'auto',
+  },
   languageButtonText: {
     color: '#FFFFFF',
     marginLeft: 8,
@@ -305,6 +366,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
     borderRadius: 12,
     padding: 8,
+  },
+  languageSelectorRTL: {
+    left: 24,
+    right: 'auto',
   },
   languageOption: {
     padding: 8,
@@ -325,6 +390,9 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Bold',
     color: '#FFFFFF',
     marginBottom: 8,
+  },
+  rtlText: {
+    textAlign: 'right',
   },
   subtitle: {
     fontSize: 18,
@@ -392,8 +460,16 @@ const styles = StyleSheet.create({
   rtlInput: {
     textAlign: 'right',
   },
+  passwordToggle: {
+    padding: 8,
+    borderRadius: 8,
+    marginLeft: 8,
+  },
   forgotPassword: {
     alignSelf: 'flex-end',
+  },
+  forgotPasswordRTL: {
+    alignSelf: 'flex-start',
   },
   forgotPasswordText: {
     fontSize: 14,
@@ -406,6 +482,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
     minHeight: 56,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   buttonGradient: {
     flexDirection: 'row',
@@ -425,6 +504,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 32,
     gap: 8,
+  },
+  footerRTL: {
+    flexDirection: 'row-reverse',
   },
   footerText: {
     fontSize: 14,
