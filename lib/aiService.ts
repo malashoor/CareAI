@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 
 interface EmotionAnalysis {
-  emotion: 'happy' | 'sad' | 'anxious' | 'excited' | 'neutral' | 'concerned' | 'frustrated' | 'grateful';
+  emotion: 'happy' | 'sad' | 'anxious' | 'excited' | 'neutral' | 'concerned' | 'frustrated' | 'grateful' | 'empathetic' | 'supportive' | 'friendly';
   confidence: number;
   intensity: 'low' | 'medium' | 'high';
 }
@@ -25,12 +25,88 @@ class AIService {
   private static instance: AIService;
   private conversationHistory: Map<string, string[]> = new Map();
   private userProfiles: Map<string, any> = new Map();
+  private readonly OPENAI_API_KEY: string;
+  private readonly MODEL: string;
+  private readonly MAX_TOKENS: number;
+  private readonly TEMPERATURE: number;
+
+  constructor() {
+    // Read from environment variables
+    this.OPENAI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY || '';
+    this.MODEL = process.env.EXPO_PUBLIC_OPENAI_MODEL || 'gpt-3.5-turbo';
+    this.MAX_TOKENS = parseInt(process.env.EXPO_PUBLIC_OPENAI_MAX_TOKENS || '150', 10);
+    this.TEMPERATURE = parseFloat(process.env.EXPO_PUBLIC_OPENAI_TEMPERATURE || '0.7');
+  }
 
   static getInstance(): AIService {
     if (!AIService.instance) {
       AIService.instance = new AIService();
     }
     return AIService.instance;
+  }
+
+  private async makeOpenAIRequest(messages: Array<{ role: string; content: string }>): Promise<{ content: string; usage?: any }> {
+    // If no API key, fall back to mock responses
+    if (!this.OPENAI_API_KEY || this.OPENAI_API_KEY === 'your_openai_api_key') {
+      console.warn('OpenAI API key not configured, using mock responses');
+      return { content: this.getMockResponse(messages[messages.length - 1]?.content || '') };
+    }
+
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: this.MODEL,
+          messages,
+          max_tokens: this.MAX_TOKENS,
+          temperature: this.TEMPERATURE,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`OpenAI API error: ${errorData.error?.message || response.statusText}`);
+      }
+
+      const data = await response.json();
+      return {
+        content: data.choices[0].message.content,
+        usage: data.usage,
+      };
+    } catch (error) {
+      console.error('OpenAI API error, falling back to mock:', error);
+      return { content: this.getMockResponse(messages[messages.length - 1]?.content || '') };
+    }
+  }
+
+  private getMockResponse(userMessage: string): string {
+    const lowerMessage = userMessage.toLowerCase();
+    
+    if (lowerMessage.includes('pain') || lowerMessage.includes('hurt')) {
+      return "I'm sorry to hear you're experiencing pain. Can you tell me more about where it hurts? Have you spoken with your healthcare provider about this?";
+    }
+    
+    if (lowerMessage.includes('medication') || lowerMessage.includes('pill')) {
+      return "Medication management is important for your health. Are you having trouble remembering to take your medications? I can help you set up reminders.";
+    }
+    
+    if (lowerMessage.includes('happy') || lowerMessage.includes('good')) {
+      return "I'm so glad to hear you're feeling happy! What's bringing you joy today? These positive moments are so important.";
+    }
+    
+    if (lowerMessage.includes('sad') || lowerMessage.includes('down')) {
+      return "I can hear that you're feeling sad, and that's okay. Sometimes we all need to feel our emotions. Would you like to talk about what's troubling you?";
+    }
+    
+    if (lowerMessage.includes('anxious') || lowerMessage.includes('worried')) {
+      return "I understand you're feeling anxious. Let's take this one step at a time together. Would some breathing exercises help?";
+    }
+    
+    return "Thank you for sharing with me. I'm here to listen and support you. How can I help you today?";
   }
 
   analyzeEmotion(text: string): EmotionAnalysis {
@@ -81,7 +157,7 @@ class AIService {
     };
   }
 
-  generateResponse(userMessage: string, context: ConversationContext): AIResponse {
+  async generateResponse(userMessage: string, context: ConversationContext): Promise<AIResponse> {
     const emotion = this.analyzeEmotion(userMessage);
     const history = this.conversationHistory.get(context.userId) || [];
     
@@ -92,301 +168,142 @@ class AIService {
     }
     this.conversationHistory.set(context.userId, history);
 
-    // Generate contextual response based on emotion and content
-    const response = this.getContextualResponse(userMessage, emotion, context, history);
-    
-    return {
-      text: response.text,
-      emotion: response.emotion,
-      suggestions: response.suggestions,
-      followUpQuestions: response.followUpQuestions
-    };
-  }
+    // Create system prompt for healthcare companion
+    const systemPrompt = `You are Sarah, a compassionate AI healthcare companion for elderly users. You should:
+- Be empathetic, caring, and patient
+- Focus on health, wellbeing, and emotional support
+- Provide gentle encouragement and practical advice
+- Ask follow-up questions to show you care
+- Respond in a warm, conversational tone
+- Keep responses concise but meaningful (1-3 sentences)
+- Consider their mood and time of day
+- Offer suggestions for health activities when appropriate
 
-  private getContextualResponse(
-    message: string, 
-    emotion: EmotionAnalysis, 
-    context: ConversationContext,
-    history: string[]
-  ): AIResponse {
-    const lowerMessage = message.toLowerCase();
-    
-    // Health-related responses
-    if (this.isHealthRelated(lowerMessage)) {
-      return this.getHealthResponse(message, emotion, context);
-    }
-    
-    // Medication-related responses
-    if (this.isMedicationRelated(lowerMessage)) {
-      return this.getMedicationResponse(message, emotion, context);
-    }
-    
-    // Emotional support responses
-    if (emotion.emotion !== 'neutral') {
-      return this.getEmotionalResponse(message, emotion, context);
-    }
-    
-    // General conversation responses
-    return this.getGeneralResponse(message, emotion, context, history);
-  }
+Current context:
+- Time of day: ${context.timeOfDay}
+- Session length: ${context.sessionLength} messages
+- User's detected emotion: ${emotion.emotion}`;
 
-  private isHealthRelated(message: string): boolean {
-    const healthKeywords = ['pain', 'hurt', 'sick', 'doctor', 'appointment', 'symptom', 'health', 'medical', 'hospital', 'treatment'];
-    return healthKeywords.some(keyword => message.includes(keyword));
-  }
-
-  private isMedicationRelated(message: string): boolean {
-    const medKeywords = ['medication', 'medicine', 'pill', 'dose', 'prescription', 'drug', 'tablet'];
-    return medKeywords.some(keyword => message.includes(keyword));
-  }
-
-  private getHealthResponse(message: string, emotion: EmotionAnalysis, context: ConversationContext): AIResponse {
-    const responses = {
-      pain: [
-        "I'm sorry to hear you're experiencing pain. Can you tell me more about where it hurts?",
-        "Pain can be concerning. Have you spoken with your healthcare provider about this?",
-        "I understand pain can be difficult to manage. Would you like some gentle breathing exercises?"
-      ],
-      doctor: [
-        "Doctor appointments can feel overwhelming. Would you like help preparing questions to ask?",
-        "It's great that you're staying on top of your healthcare. How are you feeling about the appointment?",
-        "Medical visits are important. Is there anything specific you'd like to discuss with your doctor?"
-      ],
-      sick: [
-        "I'm sorry you're not feeling well. Make sure to rest and stay hydrated.",
-        "Being sick is never fun. Have you been able to get enough rest?",
-        "Your health is important. Don't hesitate to contact your healthcare provider if you're concerned."
-      ]
-    };
-
-    const category = message.includes('pain') ? 'pain' : 
-                    message.includes('doctor') || message.includes('appointment') ? 'doctor' : 'sick';
-    
-    const responseOptions = responses[category];
-    const selectedResponse = responseOptions[Math.floor(Math.random() * responseOptions.length)];
-
-    return {
-      text: selectedResponse,
-      emotion: 'empathetic',
-      suggestions: [
-        "Tell me more about how you're feeling",
-        "Would you like some relaxation techniques?",
-        "Should we contact your caregiver?"
-      ],
-      followUpQuestions: [
-        "How long have you been experiencing this?",
-        "On a scale of 1-10, how would you rate your discomfort?",
-        "Have you taken any medication for this?"
-      ]
-    };
-  }
-
-  private getMedicationResponse(message: string, emotion: EmotionAnalysis, context: ConversationContext): AIResponse {
-    const responses = [
-      "Medication management is important for your health. Are you having trouble remembering to take your medications?",
-      "I can help you set up medication reminders. Would that be helpful?",
-      "It's great that you're thinking about your medications. Do you have any questions about them?",
-      "Staying consistent with medications can be challenging. How has your routine been going?"
+    const conversationMessages = [
+      { role: 'system', content: systemPrompt },
+      ...history.slice(-6).map((msg, index) => ({
+        role: index % 2 === 0 ? 'user' : 'assistant',
+        content: msg
+      })),
+      { role: 'user', content: userMessage }
     ];
 
-    const selectedResponse = responses[Math.floor(Math.random() * responses.length)];
+    try {
+      const { content } = await this.makeOpenAIRequest(conversationMessages);
+      
+      // Generate suggestions and follow-ups based on response
+      const suggestions = this.generateSuggestions(userMessage, emotion);
+      const followUpQuestions = this.generateFollowUps(userMessage, emotion);
 
-    return {
-      text: selectedResponse,
-      emotion: 'supportive',
-      suggestions: [
+      return {
+        text: content,
+        emotion: this.getResponseEmotion(content, emotion),
+        suggestions,
+        followUpQuestions
+      };
+    } catch (error) {
+      console.error('Error generating AI response:', error);
+      throw error;
+    }
+  }
+
+  private generateSuggestions(message: string, emotion: EmotionAnalysis): string[] {
+    const lowerMessage = message.toLowerCase();
+    
+    if (lowerMessage.includes('pain') || lowerMessage.includes('hurt')) {
+      return [
+        "Try some gentle breathing exercises",
+        "Consider contacting your healthcare provider",
+        "Would you like relaxation techniques?"
+      ];
+    }
+    
+    if (lowerMessage.includes('medication')) {
+      return [
         "Set up medication reminders",
         "Review medication schedule",
         "Contact pharmacist with questions"
-      ],
-      followUpQuestions: [
-        "Do you take your medications at the same time each day?",
-        "Have you experienced any side effects?",
-        "Would you like help organizing your medication schedule?"
-      ]
-    };
-  }
-
-  private getEmotionalResponse(message: string, emotion: EmotionAnalysis, context: ConversationContext): AIResponse {
-    const responses = {
-      happy: [
-        "I'm so glad to hear you're feeling happy! What's bringing you joy today?",
-        "Your happiness is wonderful to see! Would you like to share what's making you feel good?",
-        "It's beautiful when you feel happy. These positive moments are so important!"
-      ],
-      sad: [
-        "I can hear that you're feeling sad, and that's okay. Sometimes we all need to feel our emotions.",
-        "I'm here with you during this difficult time. Would you like to talk about what's troubling you?",
-        "Sadness is a natural part of life. You don't have to go through this alone."
-      ],
-      anxious: [
-        "I understand you're feeling anxious. Let's take this one step at a time together.",
-        "Anxiety can feel overwhelming, but you're not alone. Would some breathing exercises help?",
-        "I hear your worry, and it's completely valid. What's weighing on your mind most right now?"
-      ],
-      excited: [
-        "Your excitement is contagious! I love hearing about what makes you feel this energized.",
-        "It's wonderful to see you so excited! Tell me more about what's got you feeling this way.",
-        "Your enthusiasm brightens my day! What's this exciting news you'd like to share?"
-      ],
-      frustrated: [
-        "I can sense your frustration, and that must be really difficult right now.",
-        "Frustration is tough to handle. Would you like to talk through what's bothering you?",
-        "It sounds like you're going through a challenging time. I'm here to listen."
-      ],
-      grateful: [
-        "Gratitude is such a beautiful feeling. I'm touched that you're sharing this with me.",
-        "It's wonderful to hear your appreciation. Gratitude can really brighten our perspective.",
-        "Thank you for sharing your gratitude with me. What are you most thankful for today?"
-      ]
-    };
-
-    const emotionResponses = responses[emotion.emotion] || responses.sad;
-    const selectedResponse = emotionResponses[Math.floor(Math.random() * emotionResponses.length)];
-
-    const suggestions = this.getEmotionalSuggestions(emotion.emotion);
-    const followUps = this.getEmotionalFollowUps(emotion.emotion);
-
-    return {
-      text: selectedResponse,
-      emotion: 'empathetic',
-      suggestions,
-      followUpQuestions: followUps
-    };
-  }
-
-  private getGeneralResponse(message: string, emotion: EmotionAnalysis, context: ConversationContext, history: string[]): AIResponse {
-    const timeBasedGreetings = {
-      morning: [
-        "Good morning! How are you starting your day?",
-        "I hope you're having a peaceful morning. What's on your mind?",
-        "Morning is a fresh start! How are you feeling today?"
-      ],
-      afternoon: [
-        "Good afternoon! How has your day been going so far?",
-        "I hope your afternoon is treating you well. What would you like to chat about?",
-        "Afternoon check-in! How are you doing today?"
-      ],
-      evening: [
-        "Good evening! How was your day?",
-        "I hope you're winding down nicely this evening. What's on your mind?",
-        "Evening is a good time to reflect. How are you feeling?"
-      ],
-      night: [
-        "It's getting late! How are you doing tonight?",
-        "I hope you're having a peaceful evening. What would you like to talk about?",
-        "Nighttime can be a good time for conversation. What's on your mind?"
-      ]
-    };
-
-    const generalResponses = [
-      "I'm here to listen and support you. What would you like to talk about?",
-      "Thank you for sharing with me. How can I help you today?",
-      "I appreciate you taking the time to chat with me. What's important to you right now?",
-      "Every conversation with you is meaningful to me. What's on your heart today?",
-      "I'm glad we can spend this time together. How are you really doing?",
-      "Your thoughts and feelings matter to me. What would you like to explore together?"
-    ];
-
-    // Use time-based greeting if it's early in conversation
-    const isEarlyConversation = history.length <= 2;
-    let selectedResponse: string;
-
-    if (isEarlyConversation && Math.random() > 0.5) {
-      const timeResponses = timeBasedGreetings[context.timeOfDay];
-      selectedResponse = timeResponses[Math.floor(Math.random() * timeResponses.length)];
-    } else {
-      selectedResponse = generalResponses[Math.floor(Math.random() * generalResponses.length)];
+      ];
     }
-
-    return {
-      text: selectedResponse,
-      emotion: 'friendly',
-      suggestions: [
-        "Tell me about your day",
-        "Share something that's important to you",
-        "Ask me anything you'd like to know"
-      ],
-      followUpQuestions: [
-        "What's been the best part of your day so far?",
-        "Is there anything you'd like to talk through?",
-        "How are you taking care of yourself today?"
-      ]
-    };
-  }
-
-  private getEmotionalSuggestions(emotion: EmotionAnalysis['emotion']): string[] {
-    const suggestions = {
-      happy: [
+    
+    if (emotion.emotion === 'happy') {
+      return [
         "Share more about what's making you happy",
         "Celebrate this positive moment",
         "Think about what you're grateful for"
-      ],
-      sad: [
+      ];
+    }
+    
+    if (emotion.emotion === 'sad') {
+      return [
         "Talk through your feelings",
         "Try some gentle breathing exercises",
         "Reach out to someone you trust"
-      ],
-      anxious: [
-        "Practice deep breathing",
-        "Try grounding techniques",
-        "Talk to your healthcare provider"
-      ],
-      excited: [
-        "Tell me more about your excitement",
-        "Share your good news",
-        "Enjoy this positive energy"
-      ],
-      frustrated: [
-        "Take a moment to breathe",
-        "Talk through what's bothering you",
-        "Consider taking a short break"
-      ],
-      grateful: [
-        "Share what you're thankful for",
-        "Reflect on positive moments",
-        "Express gratitude to someone special"
-      ]
-    };
-
-    return suggestions[emotion] || suggestions.sad;
+      ];
+    }
+    
+    return [
+      "Tell me more about your day",
+      "Share something that's important to you",
+      "Would you like some encouragement?"
+    ];
   }
 
-  private getEmotionalFollowUps(emotion: EmotionAnalysis['emotion']): string[] {
-    const followUps = {
-      happy: [
+  private generateFollowUps(message: string, emotion: EmotionAnalysis): string[] {
+    const lowerMessage = message.toLowerCase();
+    
+    if (lowerMessage.includes('pain')) {
+      return [
+        "How long have you been experiencing this?",
+        "On a scale of 1-10, how would you rate your discomfort?",
+        "Have you taken any medication for this?"
+      ];
+    }
+    
+    if (emotion.emotion === 'happy') {
+      return [
         "What specifically is bringing you this joy?",
         "How long have you been feeling this way?",
         "Would you like to share this happiness with someone?"
-      ],
-      sad: [
+      ];
+    }
+    
+    if (emotion.emotion === 'sad') {
+      return [
         "What's been weighing on your heart?",
         "How long have you been feeling this way?",
         "Is there anything that usually helps when you feel sad?"
-      ],
-      anxious: [
-        "What's causing you the most worry right now?",
-        "Have you experienced this anxiety before?",
-        "What usually helps you feel calmer?"
-      ],
-      excited: [
-        "What's got you feeling so energized?",
-        "When did this excitement start?",
-        "Who else knows about this exciting news?"
-      ],
-      frustrated: [
-        "What's the main source of your frustration?",
-        "How long have you been feeling this way?",
-        "What would help you feel better right now?"
-      ],
-      grateful: [
-        "What are you most grateful for today?",
-        "Who or what has made a positive impact on you?",
-        "How does expressing gratitude make you feel?"
-      ]
-    };
+      ];
+    }
+    
+    return [
+      "How are you taking care of yourself today?",
+      "What's been the best part of your day so far?",
+      "Is there anything else you'd like to talk about?"
+    ];
+  }
 
-    return followUps[emotion] || followUps.sad;
+  private getResponseEmotion(response: string, userEmotion: EmotionAnalysis): string {
+    const lowerResponse = response.toLowerCase();
+    
+    if (lowerResponse.includes('sorry') || lowerResponse.includes('understand')) {
+      return 'empathetic';
+    }
+    
+    if (lowerResponse.includes('glad') || lowerResponse.includes('wonderful')) {
+      return 'happy';
+    }
+    
+    if (lowerResponse.includes('help') || lowerResponse.includes('support')) {
+      return 'supportive';
+    }
+    
+    return 'friendly';
   }
 
   getTimeOfDay(): ConversationContext['timeOfDay'] {
@@ -399,6 +316,38 @@ class AIService {
 
   clearConversationHistory(userId: string): void {
     this.conversationHistory.delete(userId);
+  }
+
+  async testAPIConnection(): Promise<{ success: boolean; message: string }> {
+    if (!this.OPENAI_API_KEY || this.OPENAI_API_KEY === 'your_openai_api_key') {
+      return {
+        success: false,
+        message: 'OpenAI API key not configured. Using mock responses.'
+      };
+    }
+
+    try {
+      const { content } = await this.makeOpenAIRequest([
+        {
+          role: 'system',
+          content: 'You are a helpful assistant.',
+        },
+        {
+          role: 'user',
+          content: 'Say "API connection successful" if you can read this message.',
+        },
+      ]);
+
+      return {
+        success: true,
+        message: content
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: `Connection Error: ${error instanceof Error ? error.message : 'Unknown error'}`
+      };
+    }
   }
 }
 
