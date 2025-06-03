@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 
 interface EmotionAnalysis {
   emotion: 'happy' | 'sad' | 'anxious' | 'excited' | 'neutral' | 'concerned' | 'frustrated' | 'grateful' | 'empathetic' | 'supportive' | 'friendly';
@@ -31,11 +32,25 @@ class AIService {
   private readonly TEMPERATURE: number;
 
   constructor() {
-    // Read from environment variables
-    this.OPENAI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY || '';
-    this.MODEL = process.env.EXPO_PUBLIC_OPENAI_MODEL || 'gpt-3.5-turbo';
-    this.MAX_TOKENS = parseInt(process.env.EXPO_PUBLIC_OPENAI_MAX_TOKENS || '150', 10);
-    this.TEMPERATURE = parseFloat(process.env.EXPO_PUBLIC_OPENAI_TEMPERATURE || '0.7');
+    // Read from Expo Constants (proper way for Expo apps)
+    const extra = Constants.expoConfig?.extra || {};
+    this.OPENAI_API_KEY = extra.EXPO_PUBLIC_OPENAI_API_KEY || process.env.EXPO_PUBLIC_OPENAI_API_KEY || '';
+    this.MODEL = extra.EXPO_PUBLIC_OPENAI_MODEL || process.env.EXPO_PUBLIC_OPENAI_MODEL || 'gpt-3.5-turbo';
+    this.MAX_TOKENS = parseInt(extra.EXPO_PUBLIC_OPENAI_MAX_TOKENS || process.env.EXPO_PUBLIC_OPENAI_MAX_TOKENS || '150', 10);
+    this.TEMPERATURE = parseFloat(extra.EXPO_PUBLIC_OPENAI_TEMPERATURE || process.env.EXPO_PUBLIC_OPENAI_TEMPERATURE || '0.7');
+
+    // 🔑 DEBUG: Log OpenAI key status for developer verification
+    console.log('🔑 OpenAI Key (loaded):', this.OPENAI_API_KEY ? `${this.OPENAI_API_KEY.substring(0, 10)}...${this.OPENAI_API_KEY.substring(this.OPENAI_API_KEY.length - 4)}` : 'NOT FOUND');
+    console.log('🤖 OpenAI Model:', this.MODEL);
+    console.log('📊 OpenAI Max Tokens:', this.MAX_TOKENS);
+    console.log('🌡️ OpenAI Temperature:', this.TEMPERATURE);
+    console.log('🔧 Environment Check:', {
+      keyLength: this.OPENAI_API_KEY?.length,
+      hasKey: !!this.OPENAI_API_KEY,
+      isDefault: this.OPENAI_API_KEY === 'your_openai_api_key',
+      fromExtra: !!extra.EXPO_PUBLIC_OPENAI_API_KEY,
+      fromEnv: !!process.env.EXPO_PUBLIC_OPENAI_API_KEY
+    });
   }
 
   static getInstance(): AIService {

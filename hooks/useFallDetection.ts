@@ -52,6 +52,13 @@ export function useFallDetection(userId: string) {
   const mockTimer = useRef<any>(null);
 
   useEffect(() => {
+    // Only load data and set up subscriptions if userId is valid
+    if (!userId || userId === 'undefined' || userId === '') {
+      console.warn('Invalid userId provided to useFallDetection:', userId);
+      setLoading(false);
+      return;
+    }
+
     loadEvents();
     loadSettings();
 
@@ -80,6 +87,13 @@ export function useFallDetection(userId: string) {
   }, [userId]);
 
   const loadEvents = async () => {
+    // Validate userId before making database query
+    if (!userId || userId === 'undefined' || userId === '') {
+      console.warn('Invalid userId provided to loadEvents:', userId);
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('fall_detection_events')

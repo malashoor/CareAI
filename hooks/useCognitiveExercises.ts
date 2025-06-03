@@ -31,6 +31,13 @@ export function useCognitiveExercises(userId: string) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Only load data and set up subscriptions if userId is valid
+    if (!userId || userId === 'undefined' || userId === '') {
+      console.warn('Invalid userId provided to useCognitiveExercises:', userId);
+      setLoading(false);
+      return;
+    }
+
     loadExercises();
     loadProgress();
 
@@ -71,6 +78,12 @@ export function useCognitiveExercises(userId: string) {
   };
 
   const loadProgress = async () => {
+    // Validate userId before making database query
+    if (!userId || userId === 'undefined' || userId === '') {
+      console.warn('Invalid userId provided to loadProgress:', userId);
+      return;
+    }
+
     const { data, error } = await supabase
       .from('cognitive_progress')
       .select('*')
@@ -106,6 +119,12 @@ export function useCognitiveExercises(userId: string) {
     mistakes: number = 0,
     feedback: any = {}
   ) => {
+    // Validate userId before making database query
+    if (!userId || userId === 'undefined' || userId === '') {
+      console.error('Invalid userId provided to completeExercise:', userId);
+      throw new Error('Invalid user ID');
+    }
+
     const exercise = exercises.find(e => e.id === exerciseId);
     if (!exercise) return;
 
