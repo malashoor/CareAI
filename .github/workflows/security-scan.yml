@@ -1,0 +1,82 @@
+name: 🛡️ Security Scan
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  security-scan:
+    name: 🔒 Security & Secrets Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history for comprehensive scanning
+    
+    - name: 🔍 Scan for Secrets
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: main
+        head: HEAD
+        extra_args: --debug --only-verified
+    
+    - name: 🔒 Custom Secret Patterns Scan
+      run: |
+        echo "🔍 CareAI Custom Security Scan..."
+        
+        # Check for .env files
+        if find . -name "*.env*" -not -path "./node_modules/*" -not -path "./.git/*" | grep -v ".env.example"; then
+          echo "🚨 ERROR: .env files found in repository!"
+          exit 1
+        fi
+        
+        # Check for API key patterns
+        if grep -r -E "(sk-[a-zA-Z0-9]{20,}|eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+|AIza[a-zA-Z0-9_-]{35}|re_[a-zA-Z0-9]{16,})" . --exclude-dir=node_modules --exclude-dir=.git --exclude="*.md" --exclude="security-scan.yml" --exclude="pre-commit"; then
+          echo "🚨 ERROR: Potential API keys detected!"
+          exit 1
+        fi
+        
+        # Check for Supabase patterns
+        if grep -r -E "https://[a-z]+\.supabase\.co" . --exclude-dir=node_modules --exclude-dir=.git --exclude="*.md" | grep -v "example\|placeholder\|your-project"; then
+          echo "🚨 ERROR: Real Supabase URLs detected!"
+          exit 1
+        fi
+        
+        echo "✅ Custom security scan passed"
+    
+    - name: 🔍 Check File Permissions
+      run: |
+        echo "🔍 Checking for files with sensitive permissions..."
+        
+        # Check for executable files that shouldn't be
+        find . -type f -executable -not -path "./node_modules/*" -not -path "./.git/*" -not -name "*.sh" -not -name "*.js" -not -name "*.py" | while read file; do
+          echo "⚠️  WARNING: Executable file: $file"
+        done
+        
+        echo "✅ Permission check completed"
+    
+    - name: 📋 Security Report
+      if: failure()
+      run: |
+        echo "🚨 SECURITY SCAN FAILED!"
+        echo "This PR/commit contains potential security issues."
+        echo "Please review and fix before merging."
+        echo ""
+        echo "🛠️  Common fixes:"
+        echo "- Remove .env files (use .env.example instead)"
+        echo "- Replace real API keys with placeholders"
+        echo "- Use environment variables for sensitive data"
+        echo ""
+        echo "🔒 Security is critical for CareAI user data protection."
+        
+    - name: ✅ Security Approval
+      if: success()
+      run: |
+        echo "✅ All security scans passed!"
+        echo "🛡️  No sensitive data detected in this commit."
+        echo "🚀 Safe to merge." 
