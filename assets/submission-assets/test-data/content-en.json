@@ -1,0 +1,21 @@
+{
+  "welcome": {
+    "title": "Welcome to CareAI",
+    "subtitle": "Your personal AI healthcare companion"
+  },
+  "profile": {
+    "title": "Profile",
+    "settings": "Settings"
+  },
+  "chat": {
+    "placeholder": "Type your message..."
+  },
+  "reminders": {
+    "title": "Reminders",
+    "newReminder": "New Reminder"
+  },
+  "sos": {
+    "title": "Emergency SOS",
+    "activate": "Activate SOS"
+  }
+}

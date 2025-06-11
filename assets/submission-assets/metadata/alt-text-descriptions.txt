@@ -1,0 +1,767 @@
+ios/light/iphone-15-pro-max-splashscreen-light-en.png
+SplashScreen on iPhone 15 Pro Max in light mode with English language
+
+ios/light/iphone-15-pro-max-welcomescreen-light-en.png
+WelcomeScreen on iPhone 15 Pro Max in light mode with English language
+
+ios/light/iphone-15-pro-max-profilescreen-light-en.png
+ProfileScreen on iPhone 15 Pro Max in light mode with English language
+
+ios/light/iphone-15-pro-max-chatscreen-light-en.png
+ChatScreen on iPhone 15 Pro Max in light mode with English language
+
+ios/light/iphone-15-pro-max-reminderslistscreen-light-en.png
+RemindersListScreen on iPhone 15 Pro Max in light mode with English language
+
+ios/light/iphone-15-pro-max-newreminderscreen-light-en.png
+NewReminderScreen on iPhone 15 Pro Max in light mode with English language
+
+ios/light/iphone-15-pro-max-sosscreen-light-en.png
+SOSScreen on iPhone 15 Pro Max in light mode with English language
+
+ios/light/iphone-15-pro-max-settingsscreen-light-en.png
+SettingsScreen on iPhone 15 Pro Max in light mode with English language
+
+ios/light/iphone-15-pro-max-splashscreen-light-ar.png
+SplashScreen on iPhone 15 Pro Max in light mode with Arabic language
+
+ios/light/iphone-15-pro-max-welcomescreen-light-ar.png
+WelcomeScreen on iPhone 15 Pro Max in light mode with Arabic language
+
+ios/light/iphone-15-pro-max-profilescreen-light-ar.png
+ProfileScreen on iPhone 15 Pro Max in light mode with Arabic language
+
+ios/light/iphone-15-pro-max-chatscreen-light-ar.png
+ChatScreen on iPhone 15 Pro Max in light mode with Arabic language
+
+ios/light/iphone-15-pro-max-reminderslistscreen-light-ar.png
+RemindersListScreen on iPhone 15 Pro Max in light mode with Arabic language
+
+ios/light/iphone-15-pro-max-newreminderscreen-light-ar.png
+NewReminderScreen on iPhone 15 Pro Max in light mode with Arabic language
+
+ios/light/iphone-15-pro-max-sosscreen-light-ar.png
+SOSScreen on iPhone 15 Pro Max in light mode with Arabic language
+
+ios/light/iphone-15-pro-max-settingsscreen-light-ar.png
+SettingsScreen on iPhone 15 Pro Max in light mode with Arabic language
+
+ios/dark/iphone-15-pro-max-splashscreen-dark-en.png
+SplashScreen on iPhone 15 Pro Max in dark mode with English language
+
+ios/dark/iphone-15-pro-max-welcomescreen-dark-en.png
+WelcomeScreen on iPhone 15 Pro Max in dark mode with English language
+
+ios/dark/iphone-15-pro-max-profilescreen-dark-en.png
+ProfileScreen on iPhone 15 Pro Max in dark mode with English language
+
+ios/dark/iphone-15-pro-max-chatscreen-dark-en.png
+ChatScreen on iPhone 15 Pro Max in dark mode with English language
+
+ios/dark/iphone-15-pro-max-reminderslistscreen-dark-en.png
+RemindersListScreen on iPhone 15 Pro Max in dark mode with English language
+
+ios/dark/iphone-15-pro-max-newreminderscreen-dark-en.png
+NewReminderScreen on iPhone 15 Pro Max in dark mode with English language
+
+ios/dark/iphone-15-pro-max-sosscreen-dark-en.png
+SOSScreen on iPhone 15 Pro Max in dark mode with English language
+
+ios/dark/iphone-15-pro-max-settingsscreen-dark-en.png
+SettingsScreen on iPhone 15 Pro Max in dark mode with English language
+
+ios/dark/iphone-15-pro-max-splashscreen-dark-ar.png
+SplashScreen on iPhone 15 Pro Max in dark mode with Arabic language
+
+ios/dark/iphone-15-pro-max-welcomescreen-dark-ar.png
+WelcomeScreen on iPhone 15 Pro Max in dark mode with Arabic language
+
+ios/dark/iphone-15-pro-max-profilescreen-dark-ar.png
+ProfileScreen on iPhone 15 Pro Max in dark mode with Arabic language
+
+ios/dark/iphone-15-pro-max-chatscreen-dark-ar.png
+ChatScreen on iPhone 15 Pro Max in dark mode with Arabic language
+
+ios/dark/iphone-15-pro-max-reminderslistscreen-dark-ar.png
+RemindersListScreen on iPhone 15 Pro Max in dark mode with Arabic language
+
+ios/dark/iphone-15-pro-max-newreminderscreen-dark-ar.png
+NewReminderScreen on iPhone 15 Pro Max in dark mode with Arabic language
+
+ios/dark/iphone-15-pro-max-sosscreen-dark-ar.png
+SOSScreen on iPhone 15 Pro Max in dark mode with Arabic language
+
+ios/dark/iphone-15-pro-max-settingsscreen-dark-ar.png
+SettingsScreen on iPhone 15 Pro Max in dark mode with Arabic language
+
+ios/light/iphone-15-plus-splashscreen-light-en.png
+SplashScreen on iPhone 15 Plus in light mode with English language
+
+ios/light/iphone-15-plus-welcomescreen-light-en.png
+WelcomeScreen on iPhone 15 Plus in light mode with English language
+
+ios/light/iphone-15-plus-profilescreen-light-en.png
+ProfileScreen on iPhone 15 Plus in light mode with English language
+
+ios/light/iphone-15-plus-chatscreen-light-en.png
+ChatScreen on iPhone 15 Plus in light mode with English language
+
+ios/light/iphone-15-plus-reminderslistscreen-light-en.png
+RemindersListScreen on iPhone 15 Plus in light mode with English language
+
+ios/light/iphone-15-plus-newreminderscreen-light-en.png
+NewReminderScreen on iPhone 15 Plus in light mode with English language
+
+ios/light/iphone-15-plus-sosscreen-light-en.png
+SOSScreen on iPhone 15 Plus in light mode with English language
+
+ios/light/iphone-15-plus-settingsscreen-light-en.png
+SettingsScreen on iPhone 15 Plus in light mode with English language
+
+ios/light/iphone-15-plus-splashscreen-light-ar.png
+SplashScreen on iPhone 15 Plus in light mode with Arabic language
+
+ios/light/iphone-15-plus-welcomescreen-light-ar.png
+WelcomeScreen on iPhone 15 Plus in light mode with Arabic language
+
+ios/light/iphone-15-plus-profilescreen-light-ar.png
+ProfileScreen on iPhone 15 Plus in light mode with Arabic language
+
+ios/light/iphone-15-plus-chatscreen-light-ar.png
+ChatScreen on iPhone 15 Plus in light mode with Arabic language
+
+ios/light/iphone-15-plus-reminderslistscreen-light-ar.png
+RemindersListScreen on iPhone 15 Plus in light mode with Arabic language
+
+ios/light/iphone-15-plus-newreminderscreen-light-ar.png
+NewReminderScreen on iPhone 15 Plus in light mode with Arabic language
+
+ios/light/iphone-15-plus-sosscreen-light-ar.png
+SOSScreen on iPhone 15 Plus in light mode with Arabic language
+
+ios/light/iphone-15-plus-settingsscreen-light-ar.png
+SettingsScreen on iPhone 15 Plus in light mode with Arabic language
+
+ios/dark/iphone-15-plus-splashscreen-dark-en.png
+SplashScreen on iPhone 15 Plus in dark mode with English language
+
+ios/dark/iphone-15-plus-welcomescreen-dark-en.png
+WelcomeScreen on iPhone 15 Plus in dark mode with English language
+
+ios/dark/iphone-15-plus-profilescreen-dark-en.png
+ProfileScreen on iPhone 15 Plus in dark mode with English language
+
+ios/dark/iphone-15-plus-chatscreen-dark-en.png
+ChatScreen on iPhone 15 Plus in dark mode with English language
+
+ios/dark/iphone-15-plus-reminderslistscreen-dark-en.png
+RemindersListScreen on iPhone 15 Plus in dark mode with English language
+
+ios/dark/iphone-15-plus-newreminderscreen-dark-en.png
+NewReminderScreen on iPhone 15 Plus in dark mode with English language
+
+ios/dark/iphone-15-plus-sosscreen-dark-en.png
+SOSScreen on iPhone 15 Plus in dark mode with English language
+
+ios/dark/iphone-15-plus-settingsscreen-dark-en.png
+SettingsScreen on iPhone 15 Plus in dark mode with English language
+
+ios/dark/iphone-15-plus-splashscreen-dark-ar.png
+SplashScreen on iPhone 15 Plus in dark mode with Arabic language
+
+ios/dark/iphone-15-plus-welcomescreen-dark-ar.png
+WelcomeScreen on iPhone 15 Plus in dark mode with Arabic language
+
+ios/dark/iphone-15-plus-profilescreen-dark-ar.png
+ProfileScreen on iPhone 15 Plus in dark mode with Arabic language
+
+ios/dark/iphone-15-plus-chatscreen-dark-ar.png
+ChatScreen on iPhone 15 Plus in dark mode with Arabic language
+
+ios/dark/iphone-15-plus-reminderslistscreen-dark-ar.png
+RemindersListScreen on iPhone 15 Plus in dark mode with Arabic language
+
+ios/dark/iphone-15-plus-newreminderscreen-dark-ar.png
+NewReminderScreen on iPhone 15 Plus in dark mode with Arabic language
+
+ios/dark/iphone-15-plus-sosscreen-dark-ar.png
+SOSScreen on iPhone 15 Plus in dark mode with Arabic language
+
+ios/dark/iphone-15-plus-settingsscreen-dark-ar.png
+SettingsScreen on iPhone 15 Plus in dark mode with Arabic language
+
+ios/light/iphone-15-splashscreen-light-en.png
+SplashScreen on iPhone 15 in light mode with English language
+
+ios/light/iphone-15-welcomescreen-light-en.png
+WelcomeScreen on iPhone 15 in light mode with English language
+
+ios/light/iphone-15-profilescreen-light-en.png
+ProfileScreen on iPhone 15 in light mode with English language
+
+ios/light/iphone-15-chatscreen-light-en.png
+ChatScreen on iPhone 15 in light mode with English language
+
+ios/light/iphone-15-reminderslistscreen-light-en.png
+RemindersListScreen on iPhone 15 in light mode with English language
+
+ios/light/iphone-15-newreminderscreen-light-en.png
+NewReminderScreen on iPhone 15 in light mode with English language
+
+ios/light/iphone-15-sosscreen-light-en.png
+SOSScreen on iPhone 15 in light mode with English language
+
+ios/light/iphone-15-settingsscreen-light-en.png
+SettingsScreen on iPhone 15 in light mode with English language
+
+ios/light/iphone-15-splashscreen-light-ar.png
+SplashScreen on iPhone 15 in light mode with Arabic language
+
+ios/light/iphone-15-welcomescreen-light-ar.png
+WelcomeScreen on iPhone 15 in light mode with Arabic language
+
+ios/light/iphone-15-profilescreen-light-ar.png
+ProfileScreen on iPhone 15 in light mode with Arabic language
+
+ios/light/iphone-15-chatscreen-light-ar.png
+ChatScreen on iPhone 15 in light mode with Arabic language
+
+ios/light/iphone-15-reminderslistscreen-light-ar.png
+RemindersListScreen on iPhone 15 in light mode with Arabic language
+
+ios/light/iphone-15-newreminderscreen-light-ar.png
+NewReminderScreen on iPhone 15 in light mode with Arabic language
+
+ios/light/iphone-15-sosscreen-light-ar.png
+SOSScreen on iPhone 15 in light mode with Arabic language
+
+ios/light/iphone-15-settingsscreen-light-ar.png
+SettingsScreen on iPhone 15 in light mode with Arabic language
+
+ios/dark/iphone-15-splashscreen-dark-en.png
+SplashScreen on iPhone 15 in dark mode with English language
+
+ios/dark/iphone-15-welcomescreen-dark-en.png
+WelcomeScreen on iPhone 15 in dark mode with English language
+
+ios/dark/iphone-15-profilescreen-dark-en.png
+ProfileScreen on iPhone 15 in dark mode with English language
+
+ios/dark/iphone-15-chatscreen-dark-en.png
+ChatScreen on iPhone 15 in dark mode with English language
+
+ios/dark/iphone-15-reminderslistscreen-dark-en.png
+RemindersListScreen on iPhone 15 in dark mode with English language
+
+ios/dark/iphone-15-newreminderscreen-dark-en.png
+NewReminderScreen on iPhone 15 in dark mode with English language
+
+ios/dark/iphone-15-sosscreen-dark-en.png
+SOSScreen on iPhone 15 in dark mode with English language
+
+ios/dark/iphone-15-settingsscreen-dark-en.png
+SettingsScreen on iPhone 15 in dark mode with English language
+
+ios/dark/iphone-15-splashscreen-dark-ar.png
+SplashScreen on iPhone 15 in dark mode with Arabic language
+
+ios/dark/iphone-15-welcomescreen-dark-ar.png
+WelcomeScreen on iPhone 15 in dark mode with Arabic language
+
+ios/dark/iphone-15-profilescreen-dark-ar.png
+ProfileScreen on iPhone 15 in dark mode with Arabic language
+
+ios/dark/iphone-15-chatscreen-dark-ar.png
+ChatScreen on iPhone 15 in dark mode with Arabic language
+
+ios/dark/iphone-15-reminderslistscreen-dark-ar.png
+RemindersListScreen on iPhone 15 in dark mode with Arabic language
+
+ios/dark/iphone-15-newreminderscreen-dark-ar.png
+NewReminderScreen on iPhone 15 in dark mode with Arabic language
+
+ios/dark/iphone-15-sosscreen-dark-ar.png
+SOSScreen on iPhone 15 in dark mode with Arabic language
+
+ios/dark/iphone-15-settingsscreen-dark-ar.png
+SettingsScreen on iPhone 15 in dark mode with Arabic language
+
+android/light/pixel-8-pro-splashscreen-light-en.png
+SplashScreen on Pixel 8 Pro in light mode with English language
+
+android/light/pixel-8-pro-welcomescreen-light-en.png
+WelcomeScreen on Pixel 8 Pro in light mode with English language
+
+android/light/pixel-8-pro-profilescreen-light-en.png
+ProfileScreen on Pixel 8 Pro in light mode with English language
+
+android/light/pixel-8-pro-chatscreen-light-en.png
+ChatScreen on Pixel 8 Pro in light mode with English language
+
+android/light/pixel-8-pro-reminderslistscreen-light-en.png
+RemindersListScreen on Pixel 8 Pro in light mode with English language
+
+android/light/pixel-8-pro-newreminderscreen-light-en.png
+NewReminderScreen on Pixel 8 Pro in light mode with English language
+
+android/light/pixel-8-pro-sosscreen-light-en.png
+SOSScreen on Pixel 8 Pro in light mode with English language
+
+android/light/pixel-8-pro-settingsscreen-light-en.png
+SettingsScreen on Pixel 8 Pro in light mode with English language
+
+android/light/pixel-8-pro-splashscreen-light-ar.png
+SplashScreen on Pixel 8 Pro in light mode with Arabic language
+
+android/light/pixel-8-pro-welcomescreen-light-ar.png
+WelcomeScreen on Pixel 8 Pro in light mode with Arabic language
+
+android/light/pixel-8-pro-profilescreen-light-ar.png
+ProfileScreen on Pixel 8 Pro in light mode with Arabic language
+
+android/light/pixel-8-pro-chatscreen-light-ar.png
+ChatScreen on Pixel 8 Pro in light mode with Arabic language
+
+android/light/pixel-8-pro-reminderslistscreen-light-ar.png
+RemindersListScreen on Pixel 8 Pro in light mode with Arabic language
+
+android/light/pixel-8-pro-newreminderscreen-light-ar.png
+NewReminderScreen on Pixel 8 Pro in light mode with Arabic language
+
+android/light/pixel-8-pro-sosscreen-light-ar.png
+SOSScreen on Pixel 8 Pro in light mode with Arabic language
+
+android/light/pixel-8-pro-settingsscreen-light-ar.png
+SettingsScreen on Pixel 8 Pro in light mode with Arabic language
+
+android/dark/pixel-8-pro-splashscreen-dark-en.png
+SplashScreen on Pixel 8 Pro in dark mode with English language
+
+android/dark/pixel-8-pro-welcomescreen-dark-en.png
+WelcomeScreen on Pixel 8 Pro in dark mode with English language
+
+android/dark/pixel-8-pro-profilescreen-dark-en.png
+ProfileScreen on Pixel 8 Pro in dark mode with English language
+
+android/dark/pixel-8-pro-chatscreen-dark-en.png
+ChatScreen on Pixel 8 Pro in dark mode with English language
+
+android/dark/pixel-8-pro-reminderslistscreen-dark-en.png
+RemindersListScreen on Pixel 8 Pro in dark mode with English language
+
+android/dark/pixel-8-pro-newreminderscreen-dark-en.png
+NewReminderScreen on Pixel 8 Pro in dark mode with English language
+
+android/dark/pixel-8-pro-sosscreen-dark-en.png
+SOSScreen on Pixel 8 Pro in dark mode with English language
+
+android/dark/pixel-8-pro-settingsscreen-dark-en.png
+SettingsScreen on Pixel 8 Pro in dark mode with English language
+
+android/dark/pixel-8-pro-splashscreen-dark-ar.png
+SplashScreen on Pixel 8 Pro in dark mode with Arabic language
+
+android/dark/pixel-8-pro-welcomescreen-dark-ar.png
+WelcomeScreen on Pixel 8 Pro in dark mode with Arabic language
+
+android/dark/pixel-8-pro-profilescreen-dark-ar.png
+ProfileScreen on Pixel 8 Pro in dark mode with Arabic language
+
+android/dark/pixel-8-pro-chatscreen-dark-ar.png
+ChatScreen on Pixel 8 Pro in dark mode with Arabic language
+
+android/dark/pixel-8-pro-reminderslistscreen-dark-ar.png
+RemindersListScreen on Pixel 8 Pro in dark mode with Arabic language
+
+android/dark/pixel-8-pro-newreminderscreen-dark-ar.png
+NewReminderScreen on Pixel 8 Pro in dark mode with Arabic language
+
+android/dark/pixel-8-pro-sosscreen-dark-ar.png
+SOSScreen on Pixel 8 Pro in dark mode with Arabic language
+
+android/dark/pixel-8-pro-settingsscreen-dark-ar.png
+SettingsScreen on Pixel 8 Pro in dark mode with Arabic language
+
+android/light/pixel-7-splashscreen-light-en.png
+SplashScreen on Pixel 7 in light mode with English language
+
+android/light/pixel-7-welcomescreen-light-en.png
+WelcomeScreen on Pixel 7 in light mode with English language
+
+android/light/pixel-7-profilescreen-light-en.png
+ProfileScreen on Pixel 7 in light mode with English language
+
+android/light/pixel-7-chatscreen-light-en.png
+ChatScreen on Pixel 7 in light mode with English language
+
+android/light/pixel-7-reminderslistscreen-light-en.png
+RemindersListScreen on Pixel 7 in light mode with English language
+
+android/light/pixel-7-newreminderscreen-light-en.png
+NewReminderScreen on Pixel 7 in light mode with English language
+
+android/light/pixel-7-sosscreen-light-en.png
+SOSScreen on Pixel 7 in light mode with English language
+
+android/light/pixel-7-settingsscreen-light-en.png
+SettingsScreen on Pixel 7 in light mode with English language
+
+android/light/pixel-7-splashscreen-light-ar.png
+SplashScreen on Pixel 7 in light mode with Arabic language
+
+android/light/pixel-7-welcomescreen-light-ar.png
+WelcomeScreen on Pixel 7 in light mode with Arabic language
+
+android/light/pixel-7-profilescreen-light-ar.png
+ProfileScreen on Pixel 7 in light mode with Arabic language
+
+android/light/pixel-7-chatscreen-light-ar.png
+ChatScreen on Pixel 7 in light mode with Arabic language
+
+android/light/pixel-7-reminderslistscreen-light-ar.png
+RemindersListScreen on Pixel 7 in light mode with Arabic language
+
+android/light/pixel-7-newreminderscreen-light-ar.png
+NewReminderScreen on Pixel 7 in light mode with Arabic language
+
+android/light/pixel-7-sosscreen-light-ar.png
+SOSScreen on Pixel 7 in light mode with Arabic language
+
+android/light/pixel-7-settingsscreen-light-ar.png
+SettingsScreen on Pixel 7 in light mode with Arabic language
+
+android/dark/pixel-7-splashscreen-dark-en.png
+SplashScreen on Pixel 7 in dark mode with English language
+
+android/dark/pixel-7-welcomescreen-dark-en.png
+WelcomeScreen on Pixel 7 in dark mode with English language
+
+android/dark/pixel-7-profilescreen-dark-en.png
+ProfileScreen on Pixel 7 in dark mode with English language
+
+android/dark/pixel-7-chatscreen-dark-en.png
+ChatScreen on Pixel 7 in dark mode with English language
+
+android/dark/pixel-7-reminderslistscreen-dark-en.png
+RemindersListScreen on Pixel 7 in dark mode with English language
+
+android/dark/pixel-7-newreminderscreen-dark-en.png
+NewReminderScreen on Pixel 7 in dark mode with English language
+
+android/dark/pixel-7-sosscreen-dark-en.png
+SOSScreen on Pixel 7 in dark mode with English language
+
+android/dark/pixel-7-settingsscreen-dark-en.png
+SettingsScreen on Pixel 7 in dark mode with English language
+
+android/dark/pixel-7-splashscreen-dark-ar.png
+SplashScreen on Pixel 7 in dark mode with Arabic language
+
+android/dark/pixel-7-welcomescreen-dark-ar.png
+WelcomeScreen on Pixel 7 in dark mode with Arabic language
+
+android/dark/pixel-7-profilescreen-dark-ar.png
+ProfileScreen on Pixel 7 in dark mode with Arabic language
+
+android/dark/pixel-7-chatscreen-dark-ar.png
+ChatScreen on Pixel 7 in dark mode with Arabic language
+
+android/dark/pixel-7-reminderslistscreen-dark-ar.png
+RemindersListScreen on Pixel 7 in dark mode with Arabic language
+
+android/dark/pixel-7-newreminderscreen-dark-ar.png
+NewReminderScreen on Pixel 7 in dark mode with Arabic language
+
+android/dark/pixel-7-sosscreen-dark-ar.png
+SOSScreen on Pixel 7 in dark mode with Arabic language
+
+android/dark/pixel-7-settingsscreen-dark-ar.png
+SettingsScreen on Pixel 7 in dark mode with Arabic language
+
+android/light/pixel-tablet-splashscreen-light-en.png
+SplashScreen on Pixel Tablet in light mode with English language
+
+android/light/pixel-tablet-welcomescreen-light-en.png
+WelcomeScreen on Pixel Tablet in light mode with English language
+
+android/light/pixel-tablet-profilescreen-light-en.png
+ProfileScreen on Pixel Tablet in light mode with English language
+
+android/light/pixel-tablet-chatscreen-light-en.png
+ChatScreen on Pixel Tablet in light mode with English language
+
+android/light/pixel-tablet-reminderslistscreen-light-en.png
+RemindersListScreen on Pixel Tablet in light mode with English language
+
+android/light/pixel-tablet-newreminderscreen-light-en.png
+NewReminderScreen on Pixel Tablet in light mode with English language
+
+android/light/pixel-tablet-sosscreen-light-en.png
+SOSScreen on Pixel Tablet in light mode with English language
+
+android/light/pixel-tablet-settingsscreen-light-en.png
+SettingsScreen on Pixel Tablet in light mode with English language
+
+android/light/pixel-tablet-splashscreen-light-ar.png
+SplashScreen on Pixel Tablet in light mode with Arabic language
+
+android/light/pixel-tablet-welcomescreen-light-ar.png
+WelcomeScreen on Pixel Tablet in light mode with Arabic language
+
+android/light/pixel-tablet-profilescreen-light-ar.png
+ProfileScreen on Pixel Tablet in light mode with Arabic language
+
+android/light/pixel-tablet-chatscreen-light-ar.png
+ChatScreen on Pixel Tablet in light mode with Arabic language
+
+android/light/pixel-tablet-reminderslistscreen-light-ar.png
+RemindersListScreen on Pixel Tablet in light mode with Arabic language
+
+android/light/pixel-tablet-newreminderscreen-light-ar.png
+NewReminderScreen on Pixel Tablet in light mode with Arabic language
+
+android/light/pixel-tablet-sosscreen-light-ar.png
+SOSScreen on Pixel Tablet in light mode with Arabic language
+
+android/light/pixel-tablet-settingsscreen-light-ar.png
+SettingsScreen on Pixel Tablet in light mode with Arabic language
+
+android/dark/pixel-tablet-splashscreen-dark-en.png
+SplashScreen on Pixel Tablet in dark mode with English language
+
+android/dark/pixel-tablet-welcomescreen-dark-en.png
+WelcomeScreen on Pixel Tablet in dark mode with English language
+
+android/dark/pixel-tablet-profilescreen-dark-en.png
+ProfileScreen on Pixel Tablet in dark mode with English language
+
+android/dark/pixel-tablet-chatscreen-dark-en.png
+ChatScreen on Pixel Tablet in dark mode with English language
+
+android/dark/pixel-tablet-reminderslistscreen-dark-en.png
+RemindersListScreen on Pixel Tablet in dark mode with English language
+
+android/dark/pixel-tablet-newreminderscreen-dark-en.png
+NewReminderScreen on Pixel Tablet in dark mode with English language
+
+android/dark/pixel-tablet-sosscreen-dark-en.png
+SOSScreen on Pixel Tablet in dark mode with English language
+
+android/dark/pixel-tablet-settingsscreen-dark-en.png
+SettingsScreen on Pixel Tablet in dark mode with English language
+
+android/dark/pixel-tablet-splashscreen-dark-ar.png
+SplashScreen on Pixel Tablet in dark mode with Arabic language
+
+android/dark/pixel-tablet-welcomescreen-dark-ar.png
+WelcomeScreen on Pixel Tablet in dark mode with Arabic language
+
+android/dark/pixel-tablet-profilescreen-dark-ar.png
+ProfileScreen on Pixel Tablet in dark mode with Arabic language
+
+android/dark/pixel-tablet-chatscreen-dark-ar.png
+ChatScreen on Pixel Tablet in dark mode with Arabic language
+
+android/dark/pixel-tablet-reminderslistscreen-dark-ar.png
+RemindersListScreen on Pixel Tablet in dark mode with Arabic language
+
+android/dark/pixel-tablet-newreminderscreen-dark-ar.png
+NewReminderScreen on Pixel Tablet in dark mode with Arabic language
+
+android/dark/pixel-tablet-sosscreen-dark-ar.png
+SOSScreen on Pixel Tablet in dark mode with Arabic language
+
+android/dark/pixel-tablet-settingsscreen-dark-ar.png
+SettingsScreen on Pixel Tablet in dark mode with Arabic language
+
+tablet/light/ipad-pro-12.9"-splashscreen-light-en.png
+SplashScreen on iPad Pro 12.9" in light mode with English language
+
+tablet/light/ipad-pro-12.9"-welcomescreen-light-en.png
+WelcomeScreen on iPad Pro 12.9" in light mode with English language
+
+tablet/light/ipad-pro-12.9"-profilescreen-light-en.png
+ProfileScreen on iPad Pro 12.9" in light mode with English language
+
+tablet/light/ipad-pro-12.9"-chatscreen-light-en.png
+ChatScreen on iPad Pro 12.9" in light mode with English language
+
+tablet/light/ipad-pro-12.9"-reminderslistscreen-light-en.png
+RemindersListScreen on iPad Pro 12.9" in light mode with English language
+
+tablet/light/ipad-pro-12.9"-newreminderscreen-light-en.png
+NewReminderScreen on iPad Pro 12.9" in light mode with English language
+
+tablet/light/ipad-pro-12.9"-sosscreen-light-en.png
+SOSScreen on iPad Pro 12.9" in light mode with English language
+
+tablet/light/ipad-pro-12.9"-settingsscreen-light-en.png
+SettingsScreen on iPad Pro 12.9" in light mode with English language
+
+tablet/light/ipad-pro-12.9"-splashscreen-light-ar.png
+SplashScreen on iPad Pro 12.9" in light mode with Arabic language
+
+tablet/light/ipad-pro-12.9"-welcomescreen-light-ar.png
+WelcomeScreen on iPad Pro 12.9" in light mode with Arabic language
+
+tablet/light/ipad-pro-12.9"-profilescreen-light-ar.png
+ProfileScreen on iPad Pro 12.9" in light mode with Arabic language
+
+tablet/light/ipad-pro-12.9"-chatscreen-light-ar.png
+ChatScreen on iPad Pro 12.9" in light mode with Arabic language
+
+tablet/light/ipad-pro-12.9"-reminderslistscreen-light-ar.png
+RemindersListScreen on iPad Pro 12.9" in light mode with Arabic language
+
+tablet/light/ipad-pro-12.9"-newreminderscreen-light-ar.png
+NewReminderScreen on iPad Pro 12.9" in light mode with Arabic language
+
+tablet/light/ipad-pro-12.9"-sosscreen-light-ar.png
+SOSScreen on iPad Pro 12.9" in light mode with Arabic language
+
+tablet/light/ipad-pro-12.9"-settingsscreen-light-ar.png
+SettingsScreen on iPad Pro 12.9" in light mode with Arabic language
+
+tablet/dark/ipad-pro-12.9"-splashscreen-dark-en.png
+SplashScreen on iPad Pro 12.9" in dark mode with English language
+
+tablet/dark/ipad-pro-12.9"-welcomescreen-dark-en.png
+WelcomeScreen on iPad Pro 12.9" in dark mode with English language
+
+tablet/dark/ipad-pro-12.9"-profilescreen-dark-en.png
+ProfileScreen on iPad Pro 12.9" in dark mode with English language
+
+tablet/dark/ipad-pro-12.9"-chatscreen-dark-en.png
+ChatScreen on iPad Pro 12.9" in dark mode with English language
+
+tablet/dark/ipad-pro-12.9"-reminderslistscreen-dark-en.png
+RemindersListScreen on iPad Pro 12.9" in dark mode with English language
+
+tablet/dark/ipad-pro-12.9"-newreminderscreen-dark-en.png
+NewReminderScreen on iPad Pro 12.9" in dark mode with English language
+
+tablet/dark/ipad-pro-12.9"-sosscreen-dark-en.png
+SOSScreen on iPad Pro 12.9" in dark mode with English language
+
+tablet/dark/ipad-pro-12.9"-settingsscreen-dark-en.png
+SettingsScreen on iPad Pro 12.9" in dark mode with English language
+
+tablet/dark/ipad-pro-12.9"-splashscreen-dark-ar.png
+SplashScreen on iPad Pro 12.9" in dark mode with Arabic language
+
+tablet/dark/ipad-pro-12.9"-welcomescreen-dark-ar.png
+WelcomeScreen on iPad Pro 12.9" in dark mode with Arabic language
+
+tablet/dark/ipad-pro-12.9"-profilescreen-dark-ar.png
+ProfileScreen on iPad Pro 12.9" in dark mode with Arabic language
+
+tablet/dark/ipad-pro-12.9"-chatscreen-dark-ar.png
+ChatScreen on iPad Pro 12.9" in dark mode with Arabic language
+
+tablet/dark/ipad-pro-12.9"-reminderslistscreen-dark-ar.png
+RemindersListScreen on iPad Pro 12.9" in dark mode with Arabic language
+
+tablet/dark/ipad-pro-12.9"-newreminderscreen-dark-ar.png
+NewReminderScreen on iPad Pro 12.9" in dark mode with Arabic language
+
+tablet/dark/ipad-pro-12.9"-sosscreen-dark-ar.png
+SOSScreen on iPad Pro 12.9" in dark mode with Arabic language
+
+tablet/dark/ipad-pro-12.9"-settingsscreen-dark-ar.png
+SettingsScreen on iPad Pro 12.9" in dark mode with Arabic language
+
+tablet/light/pixel-tablet-splashscreen-light-en.png
+SplashScreen on Pixel Tablet in light mode with English language
+
+tablet/light/pixel-tablet-welcomescreen-light-en.png
+WelcomeScreen on Pixel Tablet in light mode with English language
+
+tablet/light/pixel-tablet-profilescreen-light-en.png
+ProfileScreen on Pixel Tablet in light mode with English language
+
+tablet/light/pixel-tablet-chatscreen-light-en.png
+ChatScreen on Pixel Tablet in light mode with English language
+
+tablet/light/pixel-tablet-reminderslistscreen-light-en.png
+RemindersListScreen on Pixel Tablet in light mode with English language
+
+tablet/light/pixel-tablet-newreminderscreen-light-en.png
+NewReminderScreen on Pixel Tablet in light mode with English language
+
+tablet/light/pixel-tablet-sosscreen-light-en.png
+SOSScreen on Pixel Tablet in light mode with English language
+
+tablet/light/pixel-tablet-settingsscreen-light-en.png
+SettingsScreen on Pixel Tablet in light mode with English language
+
+tablet/light/pixel-tablet-splashscreen-light-ar.png
+SplashScreen on Pixel Tablet in light mode with Arabic language
+
+tablet/light/pixel-tablet-welcomescreen-light-ar.png
+WelcomeScreen on Pixel Tablet in light mode with Arabic language
+
+tablet/light/pixel-tablet-profilescreen-light-ar.png
+ProfileScreen on Pixel Tablet in light mode with Arabic language
+
+tablet/light/pixel-tablet-chatscreen-light-ar.png
+ChatScreen on Pixel Tablet in light mode with Arabic language
+
+tablet/light/pixel-tablet-reminderslistscreen-light-ar.png
+RemindersListScreen on Pixel Tablet in light mode with Arabic language
+
+tablet/light/pixel-tablet-newreminderscreen-light-ar.png
+NewReminderScreen on Pixel Tablet in light mode with Arabic language
+
+tablet/light/pixel-tablet-sosscreen-light-ar.png
+SOSScreen on Pixel Tablet in light mode with Arabic language
+
+tablet/light/pixel-tablet-settingsscreen-light-ar.png
+SettingsScreen on Pixel Tablet in light mode with Arabic language
+
+tablet/dark/pixel-tablet-splashscreen-dark-en.png
+SplashScreen on Pixel Tablet in dark mode with English language
+
+tablet/dark/pixel-tablet-welcomescreen-dark-en.png
+WelcomeScreen on Pixel Tablet in dark mode with English language
+
+tablet/dark/pixel-tablet-profilescreen-dark-en.png
+ProfileScreen on Pixel Tablet in dark mode with English language
+
+tablet/dark/pixel-tablet-chatscreen-dark-en.png
+ChatScreen on Pixel Tablet in dark mode with English language
+
+tablet/dark/pixel-tablet-reminderslistscreen-dark-en.png
+RemindersListScreen on Pixel Tablet in dark mode with English language
+
+tablet/dark/pixel-tablet-newreminderscreen-dark-en.png
+NewReminderScreen on Pixel Tablet in dark mode with English language
+
+tablet/dark/pixel-tablet-sosscreen-dark-en.png
+SOSScreen on Pixel Tablet in dark mode with English language
+
+tablet/dark/pixel-tablet-settingsscreen-dark-en.png
+SettingsScreen on Pixel Tablet in dark mode with English language
+
+tablet/dark/pixel-tablet-splashscreen-dark-ar.png
+SplashScreen on Pixel Tablet in dark mode with Arabic language
+
+tablet/dark/pixel-tablet-welcomescreen-dark-ar.png
+WelcomeScreen on Pixel Tablet in dark mode with Arabic language
+
+tablet/dark/pixel-tablet-profilescreen-dark-ar.png
+ProfileScreen on Pixel Tablet in dark mode with Arabic language
+
+tablet/dark/pixel-tablet-chatscreen-dark-ar.png
+ChatScreen on Pixel Tablet in dark mode with Arabic language
+
+tablet/dark/pixel-tablet-reminderslistscreen-dark-ar.png
+RemindersListScreen on Pixel Tablet in dark mode with Arabic language
+
+tablet/dark/pixel-tablet-newreminderscreen-dark-ar.png
+NewReminderScreen on Pixel Tablet in dark mode with Arabic language
+
+tablet/dark/pixel-tablet-sosscreen-dark-ar.png
+SOSScreen on Pixel Tablet in dark mode with Arabic language
+
+tablet/dark/pixel-tablet-settingsscreen-dark-ar.png
+SettingsScreen on Pixel Tablet in dark mode with Arabic language

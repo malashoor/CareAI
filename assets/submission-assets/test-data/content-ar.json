@@ -1,0 +1,21 @@
+{
+  "welcome": {
+    "title": "مرحباً بك في CareAI",
+    "subtitle": "رفيقك الشخصي في الرعاية الصحية"
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "settings": "الإعدادات"
+  },
+  "chat": {
+    "placeholder": "اكتب رسالتك..."
+  },
+  "reminders": {
+    "title": "التذكيرات",
+    "newReminder": "تذكير جديد"
+  },
+  "sos": {
+    "title": "SOS الطوارئ",
+    "activate": "تفعيل SOS"
+  }
+}
