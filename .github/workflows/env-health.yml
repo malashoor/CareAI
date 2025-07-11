@@ -1,0 +1,75 @@
+name: Environment & Dependency Health Check
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - '.env.template'
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - '.env.template'
+      - 'package.json'
+      - 'package-lock.json'
+
+jobs:
+  validate:
+    runs-on: macos-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+          
+      - name: Validate .env.template
+        run: |
+          if [ ! -f .env.template ]; then
+            echo "❌ .env.template is missing"
+            exit 1
+          fi
+          
+          required_vars=(
+            "SUPABASE_URL"
+            "SUPABASE_SERVICE_ROLE_KEY"
+            "SUPABASE_ANON_KEY"
+            "NODE_ENV"
+            "ENVIRONMENT"
+            "FEATURE_FLAGS"
+            "DEBUG_MODE"
+            "API_TIMEOUT"
+            "MAX_RETRIES"
+          )
+          
+          for var in "${required_vars[@]}"; do
+            if ! grep -q "^${var}=" .env.template; then
+              echo "❌ Missing required variable: ${var}"
+              exit 1
+            fi
+          done
+          
+          echo "✅ .env.template validation passed"
+          
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+        
+      - name: Check for outdated dependencies
+        run: |
+          npm outdated || true
+          
+      - name: Validate build environment
+        run: |
+          # Check for required platform-specific dependencies
+          if [[ "$(uname -m)" == "arm64" ]]; then
+            if ! npm list @esbuild/darwin-arm64 > /dev/null 2>&1; then
+              echo "❌ Missing required M1/ARM64 dependency: @esbuild/darwin-arm64"
+              exit 1
+            fi
+          fi
+          
+          echo "✅ Build environment validation passed" 

@@ -1,0 +1,199 @@
+# CareAI - Intelligent Care Assistant
+
+Welcome to the CareAI project! This is a React Native + Expo application designed to provide intelligent care assistance and monitoring capabilities.
+
+## Project Overview
+
+CareAI is a mobile application that helps users with:
+- Real-time health monitoring
+- Location tracking
+- Camera integration for visual assistance
+- Push notifications for reminders and alerts
+- Offline support
+- Multi-language support
+- Deep linking
+- Voice interactions with AI assistant
+
+## Setup Instructions
+
+### Prerequisites
+- Node.js 18.x (recommended, Node 20 has some build issues)
+- Yarn or npm
+- Expo CLI (`npm install -g expo-cli`)
+- Android Studio (for Android development)
+- Xcode (for iOS development, macOS only)
+
+### Installation
+1. Clone the repository:
+```bash
+git clone https://github.com/malashoor/CareAI_new.git
+cd CareAI_new
+```
+
+2. Install dependencies:
+```bash
+yarn install
+# or
+npm install --legacy-peer-deps
+```
+
+3. Set up environment variables:
+```bash
+cp .env.example .env
+```
+Edit the `.env` file and fill in your API keys and credentials.
+
+4. Start the development server:
+```bash
+expo start
+# or
+npm run start
+```
+
+5. Running on device:
+   - iOS: `npm run ios`
+   - Android: `npm run android`
+   
+   Or scan the QR code in the terminal with the Expo Go app.
+
+## Known Issues (Priority Fixes)
+
+1. **Android audio latency** - There's a 300-500ms delay on voice playback, particularly affecting Samsung A-series devices. The issue is in the `useVoiceRecording` hook.
+
+2. **RTL bubble mis-alignment** - Chat bubbles show an 8px offset with right-to-left languages. This is likely in the MessageBubble styles.
+
+3. **EAS build fails on Node 20** - The build process fails with TypeScript errors when using Node 20. A workaround is to use Node 18 for building, but this should be fixed properly.
+
+## Project Structure
+
+```
+/assets            - Images, fonts, and other static assets
+/src
+  /components      - Reusable UI components
+  /screens         - Application screens/pages
+  /hooks           - Custom React hooks
+  /services        - API and business logic services
+  /lib             - Library code and utilities
+  /theme           - Theme configuration
+  /types           - TypeScript type definitions
+  /i18n            - Internationalization
+  /admin           - Admin dashboard components
+/android           - Android native code
+/ios               - iOS native code
+```
+
+## Key Features Implementation
+
+### Virtual Assistant
+The app features a sophisticated conversation engine with multiple personality options and text-to-speech/speech-to-text capabilities.
+
+### Health Monitoring
+Connects to vital sign sensors, persists data to Supabase, and presents analytics charts for monitoring health trends.
+
+### Reminder System
+Provides CRUD screens for managing reminders, a notification scheduler for timely alerts, and voice playback of reminders.
+
+### SOS / Emergency
+Features a quick-access emergency button, an escalation workflow, and contact list management for emergency situations.
+
+### Admin Dashboard
+Includes usage analytics, emotion trend tracking, and controls for gifted-access management.
+
+## Testing
+
+The project uses Jest for testing. Available test commands:
+
+- `npm test`: Run all tests
+- `npm run test:watch`: Run tests in watch mode
+- `npm run test:coverage`: Run tests with coverage report
+
+### Test Coverage Standards
+
+We maintain a high test coverage threshold:
+- Branches: 80%
+- Functions: 80%
+- Lines: 80%
+- Statements: 80%
+
+### Test Categories
+
+1. **Unit Tests**: Testing individual components and functions
+2. **Integration Tests**: Testing component interactions
+3. **Edge Cases**:
+   - Rapid state changes
+   - Invalid operations
+   - Network state changes
+   - Platform-specific behavior
+   - Subscription state transitions
+
+## Building for Production
+
+### Android
+```bash
+eas build -p android --profile production
+```
+
+### iOS
+```bash
+eas build -p ios --profile production
+```
+
+## Troubleshooting
+
+### Common Issues and Solutions
+- Metro bundler hanging: `watchman watch-del-all && npm run start`
+- Missing modules: `npm install --legacy-peer-deps`
+- iOS build errors: Check Xcode settings and provisioning profiles
+- Android build errors: Check gradlew permissions and Android SDK setup
+
+### Reset Project
+If you encounter bundler issues, use the reset script:
+```bash
+./reset-project.sh
+```
+
+## Continuous Integration and Deployment (CI/CD)
+
+Our project uses GitHub Actions for automated CI/CD. The pipeline includes:
+
+1. **Code Quality Checks**:
+   - ESLint for code style and best practices
+   - TypeScript type checking
+   - Automated on every push and pull request
+
+2. **Testing Pipeline**:
+   - Runs all unit and integration tests
+   - Generates and uploads test coverage reports
+   - Ensures code quality and reliability
+
+3. **Build and Deploy**:
+   - Automatically builds for Android and iOS
+   - Handles signing and versioning
+   - Uses secure secrets for credentials
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## Best Practices
+
+- Keep tests focused and atomic
+- Use descriptive function and variable names
+- Follow accessibility guidelines
+- Document complex logic and components
+- Maintain consistent error handling
+- Support dark and light themes
+- Ensure multilingual support works properly
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Contact
+
+If you have any questions or need additional context, please contact:
+- Email: support@careai.com 

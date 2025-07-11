@@ -1,0 +1,255 @@
+name: Environment Configuration Validation
+
+on:
+  push:
+    branches: [ main, production ]
+    paths:
+      - '**/.env*'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'scripts/**'
+      - '.env.template'
+      - 'scripts/env-*'
+      - 'scripts/validate-env.ts'
+      - 'scripts/generate-env-template.ts'
+  pull_request:
+    paths:
+      - '**/.env*'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'scripts/**'
+      - '.env.template'
+      - 'scripts/env-*'
+      - 'scripts/validate-env.ts'
+      - 'scripts/generate-env-template.ts'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate:
+    runs-on: macos-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+        
+      - name: Create test environment file
+        id: env-setup
+        run: |
+          if [ ! -f .env.template ]; then
+            echo "status=missing-template" >> $GITHUB_OUTPUT
+            echo "❌ .env.template is missing"
+            exit 1
+          fi
+          cp .env.template .env.test
+          echo "status=success" >> $GITHUB_OUTPUT
+          
+      - name: Run environment validation
+        id: env-validation
+        run: |
+          # Initialize error collection
+          ERROR_LOG=""
+          
+          # Run the comprehensive environment validator
+          node scripts/utils/env-validator.ts
+          if [ $? -ne 0 ]; then
+            ERROR_LOG="${ERROR_LOG}❌ Environment validation failed\n"
+            echo "status=validation-failed" >> $GITHUB_OUTPUT
+            exit_code=1
+          fi
+          
+          # Run additional verification scripts
+          node scripts/verify-env.ts
+          if [ $? -ne 0 ]; then
+            ERROR_LOG="${ERROR_LOG}❌ Environment verification failed\n"
+            echo "status=verification-failed" >> $GITHUB_OUTPUT
+            exit_code=1
+          fi
+          
+          # Check for insecure defaults
+          if grep -q "your-" .env.test; then
+            ERROR_LOG="${ERROR_LOG}❌ Found insecure default values in environment\n"
+            echo "status=insecure-defaults" >> $GITHUB_OUTPUT
+            exit_code=1
+          fi
+          
+          if grep -q "example" .env.test; then
+            ERROR_LOG="${ERROR_LOG}❌ Found example values in environment\n"
+            echo "status=example-values" >> $GITHUB_OUTPUT
+            exit_code=1
+          fi
+          
+          if [ -n "$ERROR_LOG" ]; then
+            echo "errors<<EOF" >> $GITHUB_OUTPUT
+            echo "$ERROR_LOG" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "✅ All environment validation checks passed"
+          
+      - name: Validate Supabase configuration
+        id: supabase-validation
+        run: |
+          ERROR_LOG=""
+          
+          # Verify Supabase URL format
+          if ! grep -q "^SUPABASE_URL=https://.*\.supabase\.co" .env.test; then
+            ERROR_LOG="${ERROR_LOG}❌ Invalid Supabase URL format\n"
+            echo "status=invalid-url" >> $GITHUB_OUTPUT
+            exit_code=1
+          fi
+          
+          # Check for required Supabase keys
+          required_keys=(
+            "SUPABASE_SERVICE_ROLE_KEY"
+            "SUPABASE_ANON_KEY"
+          )
+          
+          for key in "${required_keys[@]}"; do
+            if ! grep -q "^${key}=" .env.test; then
+              ERROR_LOG="${ERROR_LOG}❌ Missing required Supabase key: ${key}\n"
+              echo "status=missing-keys" >> $GITHUB_OUTPUT
+              exit_code=1
+            fi
+          done
+          
+          if [ -n "$ERROR_LOG" ]; then
+            echo "errors<<EOF" >> $GITHUB_OUTPUT
+            echo "$ERROR_LOG" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "✅ Supabase configuration validation passed"
+          
+      - name: Validate environment consistency
+        id: env-consistency
+        run: |
+          ERROR_LOG=""
+          
+          # Check NODE_ENV and ENVIRONMENT consistency
+          node_env=$(grep "^NODE_ENV=" .env.test | cut -d'=' -f2)
+          environment=$(grep "^ENVIRONMENT=" .env.test | cut -d'=' -f2)
+          
+          if [ "$node_env" != "$environment" ]; then
+            ERROR_LOG="${ERROR_LOG}❌ Inconsistent NODE_ENV ($node_env) and ENVIRONMENT ($environment) values\n"
+            echo "status=inconsistent-env" >> $GITHUB_OUTPUT
+            exit_code=1
+          fi
+          
+          # Validate production settings
+          if [ "$environment" = "production" ]; then
+            if grep -q "^DEBUG_MODE=true" .env.test; then
+              ERROR_LOG="${ERROR_LOG}❌ Debug mode enabled in production\n"
+              echo "status=debug-in-prod" >> $GITHUB_OUTPUT
+              exit_code=1
+            fi
+            
+            if ! grep -q "^API_TIMEOUT=[3-9][0-9][0-9][0-9][0-9]" .env.test; then
+              ERROR_LOG="${ERROR_LOG}❌ API timeout should be ≥ 30000ms in production\n"
+              echo "status=invalid-timeout" >> $GITHUB_OUTPUT
+              exit_code=1
+            fi
+            
+            if ! grep -q "^MAX_RETRIES=[3-9]" .env.test; then
+              ERROR_LOG="${ERROR_LOG}❌ MAX_RETRIES should be ≥ 3 in production\n"
+              echo "status=invalid-retries" >> $GITHUB_OUTPUT
+              exit_code=1
+            fi
+          fi
+          
+          if [ -n "$ERROR_LOG" ]; then
+            echo "errors<<EOF" >> $GITHUB_OUTPUT
+            echo "$ERROR_LOG" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "✅ Environment consistency validation passed"
+          
+      - name: Run security audit
+        id: security-audit
+        run: |
+          ERROR_LOG=""
+          
+          node scripts/launch-audit.ts
+          if [ $? -ne 0 ]; then
+            ERROR_LOG="${ERROR_LOG}❌ Security audit failed\n"
+            echo "status=audit-failed" >> $GITHUB_OUTPUT
+            exit_code=1
+          fi
+          
+          if [ -n "$ERROR_LOG" ]; then
+            echo "errors<<EOF" >> $GITHUB_OUTPUT
+            echo "$ERROR_LOG" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "✅ Security audit passed"
+
+      - name: Post validation results
+        if: ${{ github.event_name == 'pull_request' && (failure() || success()) }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const steps = {
+              'env-setup': '${{ steps.env-setup.outputs.status }}',
+              'env-validation': '${{ steps.env-validation.outputs.status }}',
+              'supabase-validation': '${{ steps.supabase-validation.outputs.status }}',
+              'env-consistency': '${{ steps.env-consistency.outputs.status }}',
+              'security-audit': '${{ steps.security-audit.outputs.status }}'
+            };
+            
+            const errors = {
+              'env-setup': `${{ steps.env-setup.outputs.errors }}`,
+              'env-validation': `${{ steps.env-validation.outputs.errors }}`,
+              'supabase-validation': `${{ steps.supabase-validation.outputs.errors }}`,
+              'env-consistency': `${{ steps.env-consistency.outputs.errors }}`,
+              'security-audit': `${{ steps.security-audit.outputs.errors }}`
+            };
+            
+            let comment = '';
+            
+            if (Object.values(steps).some(status => status !== 'success')) {
+              comment = `## ❌ Environment Validation Failed\n\n`;
+              comment += `### Issues Found:\n\n`;
+              
+              for (const [step, status] of Object.entries(steps)) {
+                if (status !== 'success' && errors[step]) {
+                  comment += errors[step].split('\n').filter(line => line.trim()).join('\n');
+                }
+              }
+              
+              comment += `\n\n### 🔍 Next Steps:\n\n`;
+              comment += `1. Please update your \`.env.local\` with the correct values\n`;
+              comment += `2. Reference the [.env.template](.env.template) file for required variables\n`;
+              comment += `3. Ensure all environment variables match the expected format\n`;
+              comment += `4. Re-run the checks after making the necessary updates\n\n`;
+              comment += `> 💡 For security reasons, never commit actual credentials to the repository.\n`;
+            } else {
+              comment = `## ✅ Environment Validation Passed\n\n`;
+              comment += `All environment checks completed successfully. Your PR is good to go! 🚀\n`;
+            }
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            }); 
